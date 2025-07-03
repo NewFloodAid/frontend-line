@@ -1,0 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: "Kanit", serif;
+}
+
+.navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* ให้แน่ใจว่า Navbar อยู่เหนือองค์ประกอบอื่น */
+  background-color: #505050; /* หรือสีที่ต้องการ */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* เงาเล็กน้อย */
+}
+
+main {
+  padding-top: 80px; /* เพิ่มช่องว่างให้พอเหมาะกับความสูงของ Navbar */
+}
