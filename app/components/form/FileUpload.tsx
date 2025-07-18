@@ -1,10 +1,10 @@
 import React from "react";
 import Image from "next/image";
-import { image } from "@/app/form/type";
+import { ReportImage } from "@/app/types";
 
 type FileUploadProps = {
-  files: (File | image)[];
-  setFiles: React.Dispatch<React.SetStateAction<(File | image)[]>>;
+  files: (File | ReportImage)[];
+  setFiles: React.Dispatch<React.SetStateAction<(File | ReportImage)[]>>;
   id: number[];
   setId: React.Dispatch<React.SetStateAction<number[]>>;
   reportStatus: string;
@@ -55,9 +55,9 @@ const Detail: React.FC<FileUploadProps> = ({
               key={index}
               className="relative flex items-center justify-center border rounded-lg overflow-visible"
             >
-              {(file as image).url ? (
+              {(file as ReportImage).url ? (
                 <img
-                  src={(file as image).url}
+                  src={(file as ReportImage).url}
                   alt={`Preview ${index + 1}`}
                   className="h-full w-full object-cover"
                   onClick={(e) => {

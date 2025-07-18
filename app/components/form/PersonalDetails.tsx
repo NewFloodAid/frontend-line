@@ -1,10 +1,10 @@
 import React from "react";
-import { personalDetails } from "@/app/form/type";
+import { UserDetails } from "@/app/types";
 
 interface PersonalDetailsProps {
-  personalDetails: personalDetails;
-  setPersonalDetails: React.Dispatch<
-    React.SetStateAction<PersonalDetailsProps["personalDetails"]>
+  userDetails: UserDetails;
+  setUserDetails: React.Dispatch<
+    React.SetStateAction<PersonalDetailsProps["userDetails"]>
   >;
   reportStatus: string;
 }
@@ -17,8 +17,8 @@ const fields = [
 ];
 
 const PersonalDetails: React.FC<PersonalDetailsProps> = ({
-  personalDetails,
-  setPersonalDetails,
+  userDetails,
+  setUserDetails,
   reportStatus,
 }) => {
   // console.log(reportStatus);
@@ -36,7 +36,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       if (value.length > 10) return;
     }
 
-    setPersonalDetails((prev) => ({ ...prev, [name]: value }));
+    setUserDetails((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -55,9 +55,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             id={name}
             type="text"
             name={name}
-            value={
-              personalDetails[name as keyof typeof personalDetails] as string
-            }
+            value={userDetails[name as keyof typeof userDetails] as string}
             onChange={handlePersonalDetailsChange}
             className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-gray-700 text-base"
             required={required}

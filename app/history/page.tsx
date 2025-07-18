@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@/app/providers/userContext";
 import ReportCard from "@/app/components/ReportCard";
-import { getReport, GetReportBody } from "@/app/api/getReport";
+import { getReport } from "@/app/api/reports";
+import { GetReportBody } from "../types";
 
 const History = () => {
   const user = useUser();

@@ -6,37 +6,38 @@ import Needs from "@/app/components/form/Needs";
 import NeedsAlert from "@/app/components/form/NeedsAlert";
 import Details from "@/app/components/form/Details";
 import FileUpload from "@/app/components/form/FileUpload";
-import { createReport, sendReport } from "@/app/api/createReport";
-import { getReport, GetReportBody } from "@/app/api/getReport";
-import { createUpdateReport, sentUpdateReport } from "@/app/api/updateReport";
+import { createReport, createUpdateReport } from "./createReport";
+import { sendReport, getReport, sentUpdateReport } from "@/app/api/reports";
 import { getAssistanceTypes } from "@/app/api/getAssistanceTypes";
-import Loading from "@/app/components/Loading";
-import { need, personalDetails, location, image } from "./type";
-import { statusMapping } from "@/app/components/status";
-import { deleteImageApi } from "@/app/api/deleteImage";
+import * as Types from "@/app/types";
+import { statusMapping } from "@/app/status";
+import { deleteImageApi } from "@/app/api/images";
 import CustomPopup, { popupType } from "../components/CustomPopup";
 
 const Form = () => {
   const user = useUser();
 
   // Formdata
-  const [personalDetails, setPersonalDetails] = useState<personalDetails>({
+  const [userDetails, setUserDetails] = useState<Types.UserDetails>({
     firstName: "",
     lastName: "",
     phone: "",
     alternatePhone: "",
   });
-  const [needs, setNeeds] = useState<need[]>([]);
+  const [needs, setNeeds] = useState<Types.AssistanceItem[]>([]);
   const [details, setDetails] = useState("");
-  const [files, setFiles] = useState<(File | image)[]>([]);
+  const [files, setFiles] = useState<(File | Types.ReportImage)[]>([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [location, setLocation] = useState<location>({ lat: null, lng: null });
+  const [coordinates, setCoordinates] = useState<Types.Coordinates>({
+    lat: null,
+    lng: null,
+  });
   const [imgId, setImgId] = useState<number[]>([]);
 
   // Form behavior
   const [showAlert, setShowAlert] = useState(false);
   const [reportStatus, setReportStatus] = useState("");
-  const [report, setReport] = useState<GetReportBody>();
+  const [report, setReport] = useState<Types.GetReportBody>();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const popupConfirm = () => {
     window.location.href = "/history";
@@ -50,7 +51,7 @@ const Form = () => {
     setReport(report);
     if (!report) return;
     setReportStatus(report.reportStatus.status);
-    setPersonalDetails({
+    setUserDetails({
       firstName: report.firstName ?? "",
       lastName: report.lastName ?? "",
       phone: report.mainPhoneNumber ?? "",
@@ -79,7 +80,7 @@ const Form = () => {
     const data = await getReport(user.uid);
     if (!data || (Array.isArray(data) && data.length === 0)) return;
     const report = data[0];
-    setPersonalDetails({
+    setUserDetails({
       firstName: report.firstName ?? "",
       lastName: report.lastName ?? "",
       phone: report.mainPhoneNumber ?? "",
@@ -94,7 +95,7 @@ const Form = () => {
     const lng = urlParams.get("lng");
     const id = urlParams.get("id");
     if (lat && lng) {
-      setLocation({ lat, lng });
+      setCoordinates({ lat, lng });
       fetchUserInfo();
     } else if (id) {
       fetchFormdata(Number(id));
@@ -129,8 +130,8 @@ const Form = () => {
     if (reportStatus == "") {
       const report = await createReport(
         user.uid,
-        location,
-        personalDetails,
+        coordinates,
+        userDetails,
         needs,
         details
       );
@@ -157,7 +158,7 @@ const Form = () => {
       }
       const newReport = await createUpdateReport(
         updatedReport,
-        personalDetails,
+        userDetails,
         needs,
         details
       );
@@ -177,7 +178,7 @@ const Form = () => {
   };
 
   if (!user?.uid) {
-    return <Loading />;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -192,8 +193,8 @@ const Form = () => {
         <form onSubmit={handleSubmit}>
           {/* ข้อมูลผู้ใช้ */}
           <PersonalDetails
-            personalDetails={personalDetails}
-            setPersonalDetails={setPersonalDetails}
+            userDetails={userDetails}
+            setUserDetails={setUserDetails}
             reportStatus={reportStatus}
           />
           {/* ความต้องการ */}

@@ -5,7 +5,8 @@ import { useUser } from "@/app/providers/userContext";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import Image from "next/image";
 import Loading from "./Loading";
-import { getReport, GetReportBody } from "@/app/api/getReport";
+import { getReport } from "@/app/api/reports";
+import { GetReportBody } from "../types";
 
 export default function MapComponent() {
   const user = useUser();

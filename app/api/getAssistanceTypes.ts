@@ -1,4 +1,4 @@
-import { need } from "@/app/form/type";
+import { AssistanceItem } from "@/app/types";
 const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/assistanceTypes`;
 
 export const getAssistanceTypes = async () => {
@@ -8,7 +8,7 @@ export const getAssistanceTypes = async () => {
       await response.json();
 
     // ปรับข้อมูล response ให้อยู่ในรูปแบบที่ต้องการ และเรียงลำดับตาม id
-    const needsData: need[] = data
+    const Assistance: AssistanceItem[] = data
       .map((item) => ({
         id: item.id,
         name: item.name,
@@ -18,7 +18,7 @@ export const getAssistanceTypes = async () => {
       .sort((a, b) => a.id - b.id); // เรียงลำดับตาม id จากน้อยไปมาก
 
     // console.log(needsData);
-    return needsData;
+    return Assistance;
   } catch (error) {
     console.error("Error fetching needs:", error);
   }

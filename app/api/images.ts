@@ -1,4 +1,5 @@
-import { getReport, GetReportBody } from "./getReport";
+import { getReport } from "./reports";
+import { GetReportBody } from "../types";
 const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/images`;
 
 export const deleteImageApi = async (id: number, report: GetReportBody) => {

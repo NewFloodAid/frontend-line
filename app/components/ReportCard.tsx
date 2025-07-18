@@ -1,9 +1,9 @@
 import Image from "next/image";
-import { deleteReport } from "@/app/api/deleteReport";
-import { GetReportBody } from "@/app/api/getReport";
+import { deleteReport } from "@/app/api/reports";
+import { GetReportBody } from "../types";
 import CustomPopup, { popupType } from "./CustomPopup";
 import { useState } from "react";
-import { statusMapping } from "./status";
+import { statusMapping } from "../status";
 
 type ReportCardProps = {
   report: GetReportBody;
