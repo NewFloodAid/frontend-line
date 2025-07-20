@@ -35,6 +35,7 @@ const Form = () => {
   const [imgId, setImgId] = useState<number[]>([]);
 
   // Form behavior
+  const [isLoading, setLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [reportStatus, setReportStatus] = useState("");
   const [report, setReport] = useState<Types.GetReportBody>();
@@ -49,6 +50,7 @@ const Form = () => {
     const data = await getReport(user.uid);
     const report = data.find((report) => report.id === id);
     setReport(report);
+    // console.log(JSON.stringify(report));
     if (!report) return;
     setReportStatus(report.reportStatus.status);
     setUserDetails({
@@ -59,7 +61,7 @@ const Form = () => {
     });
     const updatedAssistances = assistances.map((assistance) => {
       const matchingAssistance = report.reportAssistances?.find(
-        (assistance) => assistance.assistanceType.id === assistance.id
+        (a) => a.assistanceType.id === assistance.id
       );
       return matchingAssistance
         ? { ...assistance, quantity: matchingAssistance.quantity }
@@ -89,32 +91,34 @@ const Form = () => {
   };
 
   // Check urlParams
-  const urlParamsCheck = () => {
+  async function setup() {
     const urlParams = new URLSearchParams(window.location.search);
     const lat = urlParams.get("lat");
     const lng = urlParams.get("lng");
     const id = urlParams.get("id");
+    fetchAssistances();
     if (lat && lng) {
       setCoordinates({ lat, lng });
       fetchUserInfo();
+      setLoading(false);
     } else if (id) {
       fetchFormdata(Number(id));
+      setLoading(false);
     } else {
       window.location.href = "/";
     }
-  };
+  }
 
   // Get all assistance types
   const fetchAssistances = async () => {
+    if (assistances.length !== 0) return;
     const assistanceList = await getAssistanceTypes();
     setAssistances(assistanceList || []);
   };
 
-  // useEffect
   useEffect(() => {
-    fetchAssistances();
-    urlParamsCheck();
-  }, [user?.uid]);
+    setup();
+  }, [user]);
 
   // handle submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -179,7 +183,7 @@ const Form = () => {
     }
   };
 
-  if (!user?.uid) {
+  if (!user?.uid || isLoading) {
     return <div>Loading...</div>;
   }
 

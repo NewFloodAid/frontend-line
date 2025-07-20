@@ -12,51 +12,38 @@ const AssistancesComponent: React.FC<AssistancesProps> = ({
   setAssistances,
   reportStatus,
 }) => {
-  const [check, setCheck] = useState<{ [key: number]: boolean }>({});
+  const [check, setCheck] = useState<boolean[]>([]);
   const isEditable = reportStatus === "PENDING" || reportStatus === "";
 
   useEffect(() => {
-    const initialCheck: { [key: number]: boolean } = {};
+    const initialCheck: boolean[] = [];
     assistances.forEach((assistance) => {
+      // console.log(JSON.stringify(assistance));
       if (assistance.quantity > 0) {
-        initialCheck[assistance.id] = true;
+        initialCheck.push(true);
+      } else {
+        initialCheck.push(false);
       }
     });
     setCheck(initialCheck);
   }, [assistances]);
 
-  function handleCheck(id: number) {
+  function handleCheck(index: number) {
     if (!isEditable) return;
 
-    setCheck((prevCheck) => {
-      const nextChecked = !prevCheck[id];
-      if (nextChecked) {
-        setAssistances((prevAssistances) =>
-          prevAssistances.map((assistance) =>
-            assistance.id === id ? { ...assistance, quantity: 1 } : assistance
-          )
-        );
-      }
-
-      return {
-        ...prevCheck,
-        [id]: nextChecked,
-      };
+    const newChecked = !check[index]; // toggle ที่ต้องการ
+    setCheck((prev) => {
+      const updated = [...prev];
+      updated[index] = newChecked;
+      return updated;
     });
+
+    setAssistances((prevAssistances) =>
+      prevAssistances.map((item, i) =>
+        i === index ? { ...item, quantity: newChecked ? 1 : 0 } : item
+      )
+    );
   }
-
-  useEffect(() => {
-    Object.keys(check).forEach((key) => {
-      const id = Number(key);
-      if (!check[id]) {
-        setAssistances((prevAssistances) =>
-          prevAssistances.map((assistance) =>
-            assistance.id === id ? { ...assistance, quantity: 0 } : assistance
-          )
-        );
-      }
-    });
-  }, [check, setAssistances]);
 
   return (
     <div>
@@ -64,11 +51,11 @@ const AssistancesComponent: React.FC<AssistancesProps> = ({
         <div key={id} className="mb-4">
           <div className="flex items-center">
             <input
-              disabled={!isEditable}
+              disabled={!isEditable || (check.includes(true) && !check[id - 1])}
               type="checkbox"
               id={name}
-              checked={check[id] || false}
-              onChange={() => handleCheck(id)}
+              checked={check[id - 1] || false}
+              onChange={() => handleCheck(id - 1)}
               className="mr-4 w-6 h-6 transform scale-60"
             />
             <label
