@@ -18,7 +18,7 @@ export default function Alert() {
       <span className="sr-only">Info</span>
       <div>
         <span className="font-medium text-base">
-          กรุณาเลือกความต้องการอย่างน้อย 1 อย่าง
+          กรุณาเลือกความต้องการ 1 อย่าง
         </span>
       </div>
     </div>

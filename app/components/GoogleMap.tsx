@@ -3,10 +3,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useUser } from "@/app/providers/userContext";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import Image from "next/image";
-import Loading from "./Loading";
 import { getReport } from "@/app/api/reports";
 import { GetReportBody } from "../types";
+import Image from "next/image";
 
 export default function MapComponent() {
   const user = useUser();
@@ -89,7 +88,7 @@ export default function MapComponent() {
     >
       {/* เช็คว่า userLocation ยังไม่มีค่า หรือ google ยังไม่โหลด */}
       {!userLocation ? (
-        <Loading />
+        <div>Loading...</div>
       ) : (
         <GoogleMap
           mapContainerStyle={containerStyle}

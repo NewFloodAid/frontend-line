@@ -17,7 +17,8 @@ const Detail: React.FC<FileUploadProps> = ({
   reportStatus,
 }) => {
   const isEditable = reportStatus === "PENDING" || reportStatus === "";
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     if (!isEditable) return;
     const selectedFiles = event.target.files
       ? Array.from(event.target.files)
@@ -29,16 +30,16 @@ const Detail: React.FC<FileUploadProps> = ({
       const newFiles = [...prevFiles, ...imageFiles];
       return newFiles.slice(0, 4); // จำกัดแค่ 4 รูป
     });
-  };
+  }
 
-  const handleRemoveFile = async (index: number) => {
+  async function handleRemoveFile(index: number) {
     if (!isEditable) return;
     const fileToRemove = files[index];
     if ("id" in fileToRemove) {
       setId((prevIds) => [...prevIds, fileToRemove.id]);
     }
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  };
+  }
 
   return (
     <div className="mb-10">

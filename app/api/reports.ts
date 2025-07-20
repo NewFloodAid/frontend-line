@@ -42,7 +42,7 @@ export async function sendReport(
   }
 }
 
-export const getReport = async (userId: string) => {
+export async function getReport(userId: string) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     if (!jwtToken) {
@@ -68,12 +68,12 @@ export const getReport = async (userId: string) => {
     }
     throw error;
   }
-};
+}
 
-export const sentUpdateReport = async (
+export async function sentUpdateReport(
   report: Types.GetReportBody,
   photos: File[]
-) => {
+) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     if (!jwtToken) {
@@ -106,9 +106,9 @@ export const sentUpdateReport = async (
     console.error("Error sending help request:", error);
     throw error;
   }
-};
+}
 
-export const deleteReport = async (userId: string, reportId: number) => {
+export async function deleteReport(userId: string, reportId: number) {
   try {
     const data = await getReport(userId);
     const report = data.find((item) => item.id === reportId);
@@ -121,9 +121,9 @@ export const deleteReport = async (userId: string, reportId: number) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-const deleteApi = async (reportId: number) => {
+async function deleteApi(reportId: number) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     if (!jwtToken) {
@@ -149,4 +149,4 @@ const deleteApi = async (reportId: number) => {
   } catch (error) {
     throw error;
   }
-};
+}

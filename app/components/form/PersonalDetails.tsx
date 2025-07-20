@@ -24,9 +24,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   // console.log(reportStatus);
   const isEditable = reportStatus === "PENDING" || reportStatus === "";
 
-  const handlePersonalDetailsChange = (
+  function handlePersonalDetailsChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  ) {
     if (!isEditable) return;
 
     const { name, value } = e.target;
@@ -37,7 +37,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
     }
 
     setUserDetails((prev) => ({ ...prev, [name]: value }));
-  };
+  }
 
   return (
     <div className="flex flex-col gap-4 mb-10">

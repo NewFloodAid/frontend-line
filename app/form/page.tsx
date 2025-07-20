@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@/app/providers/userContext";
 import PersonalDetails from "@/app/components/form/PersonalDetails";
-import Needs from "@/app/components/form/Needs";
+import Assistances from "@/app/components/form/Assistances";
 import NeedsAlert from "@/app/components/form/NeedsAlert";
 import Details from "@/app/components/form/Details";
 import FileUpload from "@/app/components/form/FileUpload";
@@ -24,7 +24,7 @@ const Form = () => {
     phone: "",
     alternatePhone: "",
   });
-  const [needs, setNeeds] = useState<Types.AssistanceItem[]>([]);
+  const [assistances, setAssistances] = useState<Types.AssistanceItem[]>([]);
   const [details, setDetails] = useState("");
   const [files, setFiles] = useState<(File | Types.ReportImage)[]>([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -57,15 +57,15 @@ const Form = () => {
       phone: report.mainPhoneNumber ?? "",
       alternatePhone: report.reservePhoneNumber ?? "",
     });
-    const updatedNeeds = needs.map((need) => {
+    const updatedAssistances = assistances.map((assistance) => {
       const matchingAssistance = report.reportAssistances?.find(
-        (assistance) => assistance.assistanceType.id === need.id
+        (assistance) => assistance.assistanceType.id === assistance.id
       );
       return matchingAssistance
-        ? { ...need, quantity: matchingAssistance.quantity }
-        : need;
+        ? { ...assistance, quantity: matchingAssistance.quantity }
+        : assistance;
     });
-    setNeeds(updatedNeeds);
+    setAssistances(updatedAssistances);
     setDetails(report.additionalDetail ?? "");
     if (report.images) {
       setFiles(report.images);
@@ -105,21 +105,23 @@ const Form = () => {
   };
 
   // Get all assistance types
-  const fetchNeeds = async () => {
-    const needList = await getAssistanceTypes();
-    setNeeds(needList || []);
+  const fetchAssistances = async () => {
+    const assistanceList = await getAssistanceTypes();
+    setAssistances(assistanceList || []);
   };
 
   // useEffect
   useEffect(() => {
-    fetchNeeds();
+    fetchAssistances();
     urlParamsCheck();
   }, [user?.uid]);
 
   // handle submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isAnyChecked = needs.some((need) => need.quantity > 0); // 1 need require
+    const isAnyChecked = assistances.some(
+      (assistance) => assistance.quantity > 0
+    ); // 1 need require
     if (!isAnyChecked) {
       setShowAlert(true);
       return;
@@ -132,7 +134,7 @@ const Form = () => {
         user.uid,
         coordinates,
         userDetails,
-        needs,
+        assistances,
         details
       );
       try {
@@ -159,7 +161,7 @@ const Form = () => {
       const newReport = await createUpdateReport(
         updatedReport,
         userDetails,
-        needs,
+        assistances,
         details
       );
       try {
@@ -199,9 +201,9 @@ const Form = () => {
           />
           {/* ความต้องการ */}
           <div className="mb-10">
-            <Needs
-              needs={needs}
-              setNeeds={setNeeds}
+            <Assistances
+              assistances={assistances}
+              setAssistances={setAssistances}
               reportStatus={reportStatus}
             />
             {showAlert && <NeedsAlert />}
