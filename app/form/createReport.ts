@@ -43,42 +43,31 @@ export const createReport = async (
 
 export const createUpdateReport = async (
   report: Types.GetReportBody,
-  personalDetails: {
-    firstName: string;
-    lastName: string;
-    phone: string;
-    alternatePhone: string;
-  },
-  needs: {
-    id: number;
-    name: string;
-    unit: string;
-    quantity: number;
-  }[],
+  userDetails: Types.UserDetails,
+  assistances: Types.AssistanceItem[],
   details: string
 ): Promise<Types.GetReportBody> => {
   const updatedReport = {
     ...report,
-    firstName: personalDetails.firstName,
-    lastName: personalDetails.lastName,
-    mainPhoneNumber: personalDetails.phone,
-    reservePhoneNumber: personalDetails.alternatePhone,
+    firstName: userDetails.firstName,
+    lastName: userDetails.lastName,
+    mainPhoneNumber: userDetails.phone,
+    reservePhoneNumber: userDetails.alternatePhone,
     additionalDetail: details,
-    reportAssistances: needs.map((need) => {
+    reportAssistances: assistances.map((assistance) => {
       const existingAssistance = report.reportAssistances.find(
-        (assistance) => assistance.assistanceType.id === need.id
+        (a) => a.assistanceType.id === assistance.id
       );
 
       return {
         id: existingAssistance?.id ?? 0, // ถ้าไม่มีค่า id ให้ใช้ 0
         assistanceType: existingAssistance?.assistanceType ?? {
-          id: need.id,
+          id: assistance.id,
           name: "",
-          priority: 0,
           unit: "",
         },
-        quantity: need.quantity,
-        isActive: need.quantity > 0 ? true : false,
+        quantity: assistance.quantity,
+        isActive: assistance.quantity > 0 ? true : false,
         reportId: report.id,
       };
     }),

@@ -8,9 +8,16 @@ import { statusMapping } from "../status";
 type ReportCardProps = {
   report: GetReportBody;
   index: number;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
 };
 
-const ReportCard: React.FC<ReportCardProps> = ({ report, index }) => {
+const ReportCard: React.FC<ReportCardProps> = ({
+  report,
+  index,
+  isExpanded,
+  onToggleExpand,
+}) => {
   const uid = report.userId;
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [reportIdToDelete, setReportIdToDelete] = useState<number | null>(null);
@@ -56,14 +63,14 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, index }) => {
     setIsPopupOpen(false);
   };
 
-  const handleCardClick = (id: number) => {
-    window.location.href = `/form?id=${id}`;
-  };
+  // const handleCardClick = (id: number) => {
+  //   window.location.href = `/form?id=${id}`;
+  // };
 
   return (
     <div
       className="h-auto w-full rounded-2xl overflow-hidden shadow-lg bg-white mb-4 relative cursor-pointer"
-      onClick={() => handleCardClick(report.id)}
+      // onClick={() => handleCardClick(report.id)}
     >
       {/* ปุ่มลบการ์ด */}
       {report.reportStatus.status == "PENDING" && (
@@ -121,10 +128,19 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, index }) => {
                 </div>
               )
           )}
+          {/* แสดงรายละเอียดเพิ่มเติม */}
+          {report.additionalDetail && (
+            <div className="py-2 text-gray-700 text-base">
+              <p className="text-base text-black font-medium py-2">
+                รายละเอียดสถานการณ์
+              </p>
+              <p className="pl-3">{report.additionalDetail}</p>
+            </div>
+          )}
         </div>
 
-        {/* ส่วนรูปภาพ */}
-        <div className="w-32 h-32 bg-gray-200 rounded overflow-hidden">
+        {/* รูปแรก (จอเล็ก) */}
+        <div className="w-32 h-32 bg-gray-200 rounded overflow-hidden md:hidden">
           {report.images && report.images.length > 0 ? (
             <img
               src={report.images[0].url} // ดึงรูปแรกใน array
@@ -137,21 +153,101 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, index }) => {
             </p>
           )}
         </div>
+
+        {/* รูปทั้งหมด (จอใหญ่) */}
+        <div className="hidden md:flex gap-2">
+          {report.images && report.images.length > 0 ? (
+            report.images.slice(0, 4).map((image, idx) => (
+              <div
+                key={idx}
+                className="w-32 h-32 bg-gray-200 rounded overflow-hidden"
+              >
+                <img
+                  src={image.url}
+                  alt={`Report Image ${idx + 1}`}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-sm flex items-center justify-center h-32">
+              ไม่มีรูปภาพ
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* แสดงรายละเอียดเพิ่มเติม */}
-      {report.additionalDetail && (
-        <div className="px-6 py-2 text-gray-700 text-base">
-          <p className="text-base text-black font-medium py-2">
-            รายละเอียดสถานการณ์
-          </p>
-          <p className="pl-3">{report.additionalDetail}</p>
+      {isExpanded && (
+        <div className="px-6 space-y-4">
+          {/* รูปภาพที่เหลือ (จอเล็ก) */}
+          <div className="flex gap-2 overflow-x-auto md:hidden">
+            {report.images?.slice(1, 4).map((image, idx) => (
+              <div
+                key={idx}
+                className="w-32 h-32 bg-gray-200 rounded overflow-hidden"
+              >
+                <img
+                  src={image.url}
+                  alt={`img-${idx}`}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* พิกัดหรือแผนที่ */}
+          <div className="w-full h-40 bg-gray-200 rounded flex items-center justify-center text-gray-500">
+            แสดงแผนที่ตรงนี้
+          </div>
+
+          {report.reportStatus.status === "SENT" && (
+            <div className="px-6 pt-4">
+              {/* กล่อง textarea */}
+              <div>
+                <p className="font-medium mb-1">แจ้งรายละเอียดสถานการณ์</p>
+                <textarea
+                  placeholder="อธิบายเพิ่มเติม..."
+                  className="w-full border rounded px-3 py-2 text-sm"
+                  rows={3}
+                />
+              </div>
+
+              {/* Checkbox */}
+              <div className="mt-4 mb-2 flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  id="confirm"
+                  className="mr-4 w-6 h-6 transform scale-100"
+                />
+                <label htmlFor="confirm" className="text-green-600 text-base">
+                  ยืนยันการส่งข้อมูล
+                </label>
+              </div>
+
+              {/* ปุ่มอัปเดต */}
+              <div className="mt-4 mb-2 flex items-center justify-center">
+                <button className="bg-blue-500 text-white px-4 py-2 rounded text-sm">
+                  อัปเดต
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      <div className="px-6 py-4 flex justify-end">
+      <div className="flex justify-between items-center px-6 py-4">
+        {/* ปุ่มดูรายละเอียด / ย่อการ์ด */}
+        <button
+          onClick={onToggleExpand}
+          className="text-blue-600 text-sm underline"
+        >
+          {isExpanded ? "ย่อการ์ด" : "ดูรายละเอียด"}
+        </button>
+
+        {/* สถานะคำร้อง */}
         <p className={`text-lg font-medium ${title.color}`}>{title.label}</p>
       </div>
+
       {/* <div>{report.id}</div> */}
     </div>
   );

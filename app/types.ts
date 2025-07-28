@@ -12,6 +12,12 @@ export interface AssistanceItem {
   quantity: number;
 }
 
+export interface AssistanceType {
+  id: number;
+  name: string;
+  unit: string;
+}
+
 export interface Coordinates {
   lat: string | null;
   lng: string | null;
@@ -63,16 +69,12 @@ export type GetReportBody = {
     governmentOrderingNumber: number;
   };
   additionalDetail: string;
+  afterAdditionalDetail: string;
   createdAt: string;
   updatedAt: string;
   reportAssistances: {
     id: number;
-    assistanceType: {
-      id: number;
-      name: string;
-      priority: number;
-      unit: string;
-    };
+    assistanceType: AssistanceType;
     quantity: number;
     isActive: boolean;
     reportId: number;
@@ -80,6 +82,7 @@ export type GetReportBody = {
   images: {
     id: number;
     name: string;
+    phase: string;
     imageCategory: {
       id: number;
       name: string;
