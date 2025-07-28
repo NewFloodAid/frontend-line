@@ -135,9 +135,9 @@ export default function MapComponent() {
                   url: `/${pinColor}-pin.png`, // รูปภาพหมุด (เช่น yellow-pin.png)
                   scaledSize: new window.google.maps.Size(37, 53),
                 }}
-                onClick={() => {
-                  window.location.href = `/form?id=${location.id}`;
-                }}
+                // onClick={() => {
+                //   window.location.href = `/form?id=${location.id}`;
+                // }}
               />
             );
           })}
