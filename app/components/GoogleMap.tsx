@@ -109,16 +109,16 @@ export default function MapComponent() {
             let pinColor;
             switch (location.reportStatus.status) {
               case "PENDING":
-                pinColor = "yellow";
+                pinColor = "red";
                 break;
               case "PROCESS":
-                pinColor = "blue";
+                pinColor = "yellow";
                 break;
               case "SUCCESS":
                 pinColor = "green";
                 break;
-              case "REJECTED":
-                pinColor = "red";
+              case "SENT":
+                pinColor = "blue";
                 break;
               default:
                 pinColor = "gray"; // กรณีที่สถานะไม่ตรงเงื่อนไข
