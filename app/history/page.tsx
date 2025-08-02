@@ -30,7 +30,12 @@ const History = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-min gap-4 min-h-screen bg-[#505050] py-4">
       {reports.map((report, index) => (
-        <ReportCard key={report.id} report={report} index={index + 1} />
+        <ReportCard 
+          key={report.id} 
+          report={report} 
+          index={index + 1} 
+          onStatusUpdate={fetchReports}
+        />
       ))}
     </div>
   );

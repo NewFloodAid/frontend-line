@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { deleteReport } from "@/app/api/reports";
+import { deleteReport, updateReportStatus } from "@/app/api/reports";
 import { GetReportBody } from "../types";
 import CustomPopup, { popupType } from "./CustomPopup";
 import { useState } from "react";
@@ -8,12 +8,14 @@ import { statusMapping } from "../status";
 type ReportCardProps = {
   report: GetReportBody;
   index: number;
+  onStatusUpdate?: () => void;
 };
 
-const ReportCard: React.FC<ReportCardProps> = ({ report, index }) => {
+const ReportCard: React.FC<ReportCardProps> = ({ report, index, onStatusUpdate }) => {
   const uid = report.userId;
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [reportIdToDelete, setReportIdToDelete] = useState<number | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
   const createdAt = new Date(report.createdAt);
 
   const status = report.reportStatus.status;
@@ -58,6 +60,69 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, index }) => {
 
   const handleCardClick = (id: number) => {
     window.location.href = `/form?id=${id}`;
+  };
+
+  const handleUpdateStatus = async (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (report.reportStatus.status !== "SENT") return;
+    
+    setIsUpdating(true);
+    try {
+      // 1: Add the solved.png image with current SENT status (phase will be AFTER)
+      const response = await fetch('/solved.png');
+      const blob = await response.blob();
+      const solvedImage = new File([blob], 'solved.png', { type: 'image/png' });
+      
+      // Create FormData with current report status (SENT) and image
+      const formData = new FormData();
+      formData.append("report", JSON.stringify(report));
+      formData.append("files", solvedImage);
+      
+      const jwtToken = localStorage.getItem("jwtToken");
+      if (!jwtToken) {
+        throw new Error("User is not authenticated.");
+      }
+
+      const apiResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+          "X-Source-App": "LIFF",
+        },
+        body: formData,
+      });
+
+      if (!apiResponse.ok) {
+        throw new Error(`status: ${apiResponse.status}`);
+      }
+
+      // Step 2: Update status to SUCCESS
+      const updatedReport = {
+        ...report,
+        reportAssistances: report.reportAssistances.map(assistance => ({
+          ...assistance,
+          isActive: false
+        })),
+        reportStatus: {
+          id: 4,
+          status: "SUCCESS",
+          userOrderingNumber: 4,
+          governmentOrderingNumber: 4
+        },
+        afterAdditionalDetail: "This is tested feedback"
+      };
+      
+      // Update status to SUCCESS
+      await updateReportStatus(updatedReport);
+      
+      if (onStatusUpdate) {
+        onStatusUpdate();
+      }
+    } catch (error) {
+      console.error("Failed to update report status:", error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -152,6 +217,22 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, index }) => {
       <div className="px-6 py-4 flex justify-end">
         <p className={`text-lg font-medium ${title.color}`}>{title.label}</p>
       </div>
+            <div className="px-6 py-4 flex justify-between items-center">
+        {/* Update to SUCCESS button */}
+        {report.reportStatus.status === "SENT" && (
+          <button
+            className={`px-4 py-2 rounded-lg text-white font-medium text-sm transition-colors ${
+              isUpdating 
+                ? "bg-gray-400 cursor-not-allowed" 
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            onClick={handleUpdateStatus}
+            disabled={isUpdating}
+          >
+            update
+          </button>
+        )}
+        </div>
       {/* <div>{report.id}</div> */}
     </div>
   );

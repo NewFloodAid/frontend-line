@@ -123,6 +123,37 @@ export async function deleteReport(userId: string, reportId: number) {
   }
 }
 
+export async function updateReportStatus(report: Types.GetReportBody) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    if (!jwtToken) {
+      throw new Error("User is not authenticated.");
+    }
+
+    const formData = new FormData();
+    formData.append("report", JSON.stringify(report));
+
+    const response = await fetch(URL, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+        "X-Source-App": "LIFF",
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error updating report status:", error);
+    throw error;
+  }
+}
+
 async function deleteApi(reportId: number) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
