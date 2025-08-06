@@ -1,12 +1,13 @@
 import React from "react";
 import { UserDetails } from "@/app/types";
+import { StatusEnum } from "@/app/status";
 
 interface PersonalDetailsProps {
   userDetails: UserDetails;
   setUserDetails: React.Dispatch<
     React.SetStateAction<PersonalDetailsProps["userDetails"]>
   >;
-  reportStatus: string;
+  reportStatus: StatusEnum | undefined;
 }
 
 const fields = [
@@ -22,7 +23,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   reportStatus,
 }) => {
   // console.log(reportStatus);
-  const isEditable = reportStatus === "PENDING" || reportStatus === "";
+  const isEditable = reportStatus === StatusEnum.PENDING || !reportStatus;
 
   function handlePersonalDetailsChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

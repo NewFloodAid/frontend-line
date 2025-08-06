@@ -1,4 +1,5 @@
 import React from "react";
+import { StatusEnum } from "@/app/status";
 
 interface CustomPopupProps {
   isOpen: boolean;

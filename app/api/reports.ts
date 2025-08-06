@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as Types from "@/app/types";
+import { StatusEnum } from "@/app/status";
 
 const URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports`;
 
@@ -82,7 +83,7 @@ export async function sentUpdateReport(
 
     const data = await getReport(report.userId);
     const oldReport = data.find((item) => item.id === report.id);
-    if (oldReport?.reportStatus.status != "PENDING") return false;
+    if (oldReport?.reportStatus.status == StatusEnum.PROCESS) return false;
     const formData = new FormData();
     formData.append("report", JSON.stringify(report)); // เพิ่ม report ในรูปแบบ JSON string
     photos.forEach((file) => {
@@ -113,7 +114,7 @@ export async function deleteReport(userId: string, reportId: number) {
     const data = await getReport(userId);
     const report = data.find((item) => item.id === reportId);
     if (!report) return false;
-    if (report.reportStatus.status == "PENDING") {
+    if (report.reportStatus.status == StatusEnum.PENDING) {
       return await deleteApi(reportId);
     } else {
       return false;

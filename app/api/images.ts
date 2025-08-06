@@ -1,12 +1,13 @@
 import { getReport } from "./reports";
 import { GetReportBody } from "../types";
+import { StatusEnum } from "@/app/status";
 const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/images`;
 
 export const deleteImageApi = async (id: number, report: GetReportBody) => {
   try {
     const data = await getReport(report.userId);
     const foundReport = data.find((item) => item.id === report?.id);
-    if (foundReport?.reportStatus.status == "PENDING") {
+    if (foundReport?.reportStatus.status == StatusEnum.PENDING) {
       const response = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
       });

@@ -1,3 +1,5 @@
+import { ReportStatus } from "./status";
+
 export interface UserDetails {
   firstName: string;
   lastName: string;
@@ -62,12 +64,7 @@ export type GetReportBody = {
   mainPhoneNumber: string;
   reservePhoneNumber: string;
   priority: number;
-  reportStatus: {
-    id: number;
-    status: string;
-    userOrderingNumber: number;
-    governmentOrderingNumber: number;
-  };
+  reportStatus: ReportStatus;
   additionalDetail: string;
   afterAdditionalDetail: string;
   createdAt: string;

@@ -1,9 +1,10 @@
 import React from "react";
+import { StatusEnum } from "@/app/status";
 
 type DetailsProps = {
   details: string;
   setDetails: React.Dispatch<React.SetStateAction<DetailsProps["details"]>>;
-  reportStatus: string;
+  reportStatus: StatusEnum | undefined;
 };
 
 const Detail: React.FC<DetailsProps> = ({
@@ -11,7 +12,7 @@ const Detail: React.FC<DetailsProps> = ({
   setDetails,
   reportStatus,
 }) => {
-  const isEditable = reportStatus === "PENDING" || reportStatus === "";
+  const isEditable = reportStatus === StatusEnum.PENDING || !reportStatus;
   const handleDetailsChange = (input: string) => {
     if (!isEditable) return;
     setDetails(input);

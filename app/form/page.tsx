@@ -10,7 +10,7 @@ import { createReport, createUpdateReport } from "./createReport";
 import { sendReport, getReport, sentUpdateReport } from "@/app/api/reports";
 import { getAssistanceTypes } from "@/app/api/getAssistanceTypes";
 import * as Types from "@/app/types";
-import { statusMapping } from "@/app/status";
+import { statusMapping, StatusEnum } from "@/app/status";
 import { deleteImageApi } from "@/app/api/images";
 import CustomPopup, { popupType } from "../components/CustomPopup";
 
@@ -37,7 +37,7 @@ const Form = () => {
   // Form behavior
   const [isLoading, setLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
-  const [reportStatus, setReportStatus] = useState("");
+  const [reportStatus, setReportStatus] = useState<StatusEnum>();
   const [report, setReport] = useState<Types.GetReportBody>();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const popupConfirm = () => {
@@ -133,7 +133,7 @@ const Form = () => {
     setShowAlert(false);
     if (!user?.uid) return;
     // Create report if report has no status
-    if (reportStatus == "") {
+    if (!reportStatus) {
       const report = await createReport(
         user.uid,
         coordinates,
@@ -149,7 +149,7 @@ const Form = () => {
         console.error("Error sending report:", error);
       }
       // Update report if report's status is PENDING
-    } else if (reportStatus == "PENDING") {
+    } else if (reportStatus == StatusEnum.PENDING) {
       if (!report) return;
       // console.log(report);
       for (const id of imgId) {
@@ -162,11 +162,14 @@ const Form = () => {
         setIsPopupOpen(true);
         return;
       }
+      // console.log(assistances);
       const newReport = await createUpdateReport(
         updatedReport,
         userDetails,
         assistances,
-        details
+        details,
+        "",
+        undefined
       );
       try {
         const image = files.filter((file) => file instanceof File);
@@ -227,7 +230,7 @@ const Form = () => {
             reportStatus={reportStatus}
           />
           {/* ยืนยันข้อมูล */}
-          {(reportStatus === "" || reportStatus === "PENDING") && (
+          {(!reportStatus || reportStatus === StatusEnum.PENDING) && (
             <div className="mt-4 mb-2 flex items-center justify-center">
               <input
                 type="checkbox"
@@ -242,7 +245,7 @@ const Form = () => {
             </div>
           )}
           {/* ปุ่มส่งคำร้อง */}
-          {(reportStatus === "" || reportStatus === "PENDING") && (
+          {(!reportStatus || reportStatus === StatusEnum.PENDING) && (
             <div className="flex justify-center w-full mt-4">
               <button
                 type="submit"
@@ -253,12 +256,12 @@ const Form = () => {
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
-                {reportStatus === "" ? "ขอความช่วยเหลือ" : "อัปเดตข้อมูล"}
+                {!reportStatus ? "ขอความช่วยเหลือ" : "อัปเดตข้อมูล"}
               </button>
             </div>
           )}
           {/* แสดง Status ของ report ที่แก้ไขไม่ได้ */}
-          {reportStatus !== "" && reportStatus !== "PENDING" && (
+          {reportStatus && reportStatus !== StatusEnum.PENDING && (
             <p
               className={`text-lg font-medium text-center flex justify-center ${
                 statusMapping(reportStatus).color

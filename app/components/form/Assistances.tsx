@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { AssistanceItem } from "@/app/types";
+import { StatusEnum } from "@/app/status";
 
 interface AssistancesProps {
   assistances: AssistanceItem[];
   setAssistances: React.Dispatch<React.SetStateAction<AssistanceItem[]>>;
-  reportStatus: string;
+  reportStatus: StatusEnum | undefined;
 }
 
 const AssistancesComponent: React.FC<AssistancesProps> = ({
@@ -13,7 +14,7 @@ const AssistancesComponent: React.FC<AssistancesProps> = ({
   reportStatus,
 }) => {
   const [check, setCheck] = useState<boolean[]>([]);
-  const isEditable = reportStatus === "PENDING" || reportStatus === "";
+  const isEditable = reportStatus === StatusEnum.PENDING || !reportStatus;
 
   useEffect(() => {
     const initialCheck: boolean[] = [];

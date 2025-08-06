@@ -1,13 +1,14 @@
 import React from "react";
 import Image from "next/image";
 import { ReportImage } from "@/app/types";
+import { StatusEnum } from "@/app/status";
 
 type FileUploadProps = {
   files: (File | ReportImage)[];
   setFiles: React.Dispatch<React.SetStateAction<(File | ReportImage)[]>>;
   id: number[];
   setId: React.Dispatch<React.SetStateAction<number[]>>;
-  reportStatus: string;
+  reportStatus: StatusEnum | undefined;
 };
 
 const Detail: React.FC<FileUploadProps> = ({
@@ -16,7 +17,7 @@ const Detail: React.FC<FileUploadProps> = ({
   setId,
   reportStatus,
 }) => {
-  const isEditable = reportStatus === "PENDING" || reportStatus === "";
+  const isEditable = reportStatus === StatusEnum.PENDING || !reportStatus;
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     if (!isEditable) return;

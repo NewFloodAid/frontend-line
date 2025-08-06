@@ -5,6 +5,7 @@ import { useUser } from "@/app/providers/userContext";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { getReport } from "@/app/api/reports";
 import { GetReportBody } from "../types";
+import { StatusEnum } from "@/app/status";
 import Image from "next/image";
 
 export default function MapComponent() {
@@ -108,17 +109,17 @@ export default function MapComponent() {
             // กำหนดสีของหมุดตามสถานะ
             let pinColor;
             switch (location.reportStatus.status) {
-              case "PENDING":
+              case StatusEnum.PENDING:
+                pinColor = "red";
+                break;
+              case StatusEnum.PROCESS:
                 pinColor = "yellow";
                 break;
-              case "PROCESS":
-                pinColor = "blue";
-                break;
-              case "SUCCESS":
+              case StatusEnum.SUCCESS:
                 pinColor = "green";
                 break;
-              case "REJECTED":
-                pinColor = "red";
+              case StatusEnum.SENT:
+                pinColor = "blue";
                 break;
               default:
                 pinColor = "gray"; // กรณีที่สถานะไม่ตรงเงื่อนไข

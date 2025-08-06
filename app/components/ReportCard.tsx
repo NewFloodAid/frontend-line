@@ -3,7 +3,10 @@ import { deleteReport } from "@/app/api/reports";
 import { GetReportBody } from "../types";
 import CustomPopup, { popupType } from "./CustomPopup";
 import { useState } from "react";
-import { statusMapping } from "../status";
+import { statusMapping, StatusEnum } from "../status";
+import SentComponent from "./reportcard/Sent";
+import PendingComponent from "./reportcard/Pending";
+import ReportCardMapComponent from "./reportcard/Map";
 
 type ReportCardProps = {
   report: GetReportBody;
@@ -73,7 +76,7 @@ const ReportCard: React.FC<ReportCardProps> = ({
       // onClick={() => handleCardClick(report.id)}
     >
       {/* ปุ่มลบการ์ด */}
-      {report.reportStatus.status == "PENDING" && (
+      {report.reportStatus.status == StatusEnum.PENDING && (
         <button
           className="absolute top-2 right-2 z-10"
           title="ลบคำร้อง"
@@ -94,7 +97,7 @@ const ReportCard: React.FC<ReportCardProps> = ({
         isOpen={isPopupOpen}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
-        type={report.reportStatus.status as popupType}
+        type={popupType.Cancel}
       />
 
       <div className="px-6 py-4">
@@ -122,19 +125,19 @@ const ReportCard: React.FC<ReportCardProps> = ({
                   <p className="text-base font-medium py-2">
                     {assistance.assistanceType.name}
                   </p>
-                  <p className="pl-3">
+                  {/* <p className="pl-3">
                     จำนวน {assistance.quantity} {assistance.assistanceType.unit}
-                  </p>
+                  </p> */}
                 </div>
               )
           )}
           {/* แสดงรายละเอียดเพิ่มเติม */}
           {report.additionalDetail && (
-            <div className="py-2 text-gray-700 text-base">
-              <p className="text-base text-black font-medium py-2">
+            <div className="text-gray-600 text-base">
+              {/* <p className="text-base text-black font-medium py-2">
                 รายละเอียดสถานการณ์
-              </p>
-              <p className="pl-3">{report.additionalDetail}</p>
+              </p> */}
+              <p className="pl-1">{report.additionalDetail}</p>
             </div>
           )}
         </div>
@@ -178,7 +181,7 @@ const ReportCard: React.FC<ReportCardProps> = ({
       </div>
 
       {isExpanded && (
-        <div className="px-6 space-y-4">
+        <div className="px-6 py-4 space-y-4">
           {/* รูปภาพที่เหลือ (จอเล็ก) */}
           <div className="flex gap-2 overflow-x-auto md:hidden">
             {report.images?.slice(1, 4).map((image, idx) => (
@@ -196,42 +199,12 @@ const ReportCard: React.FC<ReportCardProps> = ({
           </div>
 
           {/* พิกัดหรือแผนที่ */}
-          <div className="w-full h-40 bg-gray-200 rounded flex items-center justify-center text-gray-500">
-            แสดงแผนที่ตรงนี้
+          <div className="w-full h-[200px] rounded overflow-hidden">
+            <ReportCardMapComponent report={report} />
           </div>
 
-          {report.reportStatus.status === "SENT" && (
-            <div className="px-6 pt-4">
-              {/* กล่อง textarea */}
-              <div>
-                <p className="font-medium mb-1">แจ้งรายละเอียดสถานการณ์</p>
-                <textarea
-                  placeholder="อธิบายเพิ่มเติม..."
-                  className="w-full border rounded px-3 py-2 text-sm"
-                  rows={3}
-                />
-              </div>
-
-              {/* Checkbox */}
-              <div className="mt-4 mb-2 flex items-center justify-center">
-                <input
-                  type="checkbox"
-                  id="confirm"
-                  className="mr-4 w-6 h-6 transform scale-100"
-                />
-                <label htmlFor="confirm" className="text-green-600 text-base">
-                  ยืนยันการส่งข้อมูล
-                </label>
-              </div>
-
-              {/* ปุ่มอัปเดต */}
-              <div className="mt-4 mb-2 flex items-center justify-center">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded text-sm">
-                  อัปเดต
-                </button>
-              </div>
-            </div>
-          )}
+          <SentComponent report={report} />
+          <PendingComponent report={report} />
         </div>
       )}
 

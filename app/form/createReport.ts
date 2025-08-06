@@ -1,5 +1,6 @@
 import getAddressFromLatLng from "@/app/lib/getAddressFromLatLng";
 import * as Types from "@/app/types";
+import { StatusEnum } from "../status";
 
 export const createReport = async (
   userId: string,
@@ -45,8 +46,11 @@ export const createUpdateReport = async (
   report: Types.GetReportBody,
   userDetails: Types.UserDetails,
   assistances: Types.AssistanceItem[],
-  details: string
+  details: string,
+  afterAdditionalDetail: string,
+  status: StatusEnum | undefined
 ): Promise<Types.GetReportBody> => {
+
   const updatedReport = {
     ...report,
     firstName: userDetails.firstName,
@@ -54,6 +58,7 @@ export const createUpdateReport = async (
     mainPhoneNumber: userDetails.phone,
     reservePhoneNumber: userDetails.alternatePhone,
     additionalDetail: details,
+    afterAdditionalDetail: afterAdditionalDetail,
     reportAssistances: assistances.map((assistance) => {
       const existingAssistance = report.reportAssistances.find(
         (a) => a.assistanceType.id === assistance.id
@@ -71,6 +76,10 @@ export const createUpdateReport = async (
         reportId: report.id,
       };
     }),
+    reportStatus: {
+      ...report.reportStatus,
+      status: status ? status : report.reportStatus.status,
+    },
   };
 
   return updatedReport;
