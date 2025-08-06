@@ -167,9 +167,7 @@ const Form = () => {
         updatedReport,
         userDetails,
         assistances,
-        details,
-        "",
-        undefined
+        details
       );
       try {
         const image = files.filter((file) => file instanceof File);

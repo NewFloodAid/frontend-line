@@ -89,3 +89,8 @@ export type GetReportBody = {
     reportId: number;
   }[];
 };
+
+export enum ImagePhaseEnum {
+  BEFORE = "BEFORE",
+  AFTER = "AFTER",
+}

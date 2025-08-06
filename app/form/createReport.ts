@@ -46,40 +46,57 @@ export const createUpdateReport = async (
   report: Types.GetReportBody,
   userDetails: Types.UserDetails,
   assistances: Types.AssistanceItem[],
-  details: string,
-  afterAdditionalDetail: string,
-  status: StatusEnum | undefined
+  details: string
 ): Promise<Types.GetReportBody> => {
-
   const updatedReport = {
     ...report,
     firstName: userDetails.firstName,
     lastName: userDetails.lastName,
     mainPhoneNumber: userDetails.phone,
     reservePhoneNumber: userDetails.alternatePhone,
-    additionalDetail: details,
-    afterAdditionalDetail: afterAdditionalDetail,
+    ...(report.reportStatus.status !== StatusEnum.SENT
+      ? { additionalDetail: details }
+      : { afterAdditionalDetail: details }),
     reportAssistances: assistances.map((assistance) => {
       const existingAssistance = report.reportAssistances.find(
         (a) => a.assistanceType.id === assistance.id
       );
 
-      return {
-        id: existingAssistance?.id ?? 0, // ถ้าไม่มีค่า id ให้ใช้ 0
-        assistanceType: existingAssistance?.assistanceType ?? {
-          id: assistance.id,
-          name: "",
-          unit: "",
-        },
-        quantity: assistance.quantity,
-        isActive: assistance.quantity > 0 ? true : false,
-        reportId: report.id,
-      };
+      if (report.reportStatus.status !== StatusEnum.SENT) {
+        return {
+          id: existingAssistance?.id ?? 0, // ถ้าไม่มีค่า id ให้ใช้ 0
+          assistanceType: existingAssistance?.assistanceType ?? {
+            id: assistance.id,
+            name: "",
+            unit: "",
+          },
+          quantity: assistance.quantity,
+          isActive: assistance.quantity > 0 ? true : false,
+          reportId: report.id,
+        };
+      } else {
+        return {
+          id: existingAssistance?.id ?? 0, // ถ้าไม่มีค่า id ให้ใช้ 0
+          assistanceType: existingAssistance?.assistanceType ?? {
+            id: assistance.id,
+            name: "",
+            unit: "",
+          },
+          quantity: assistance.quantity,
+          isActive: false,
+          reportId: report.id,
+        };
+      }
     }),
-    reportStatus: {
-      ...report.reportStatus,
-      status: status ? status : report.reportStatus.status,
-    },
+    // reportStatus:
+    //   report.reportStatus.status === StatusEnum.SENT
+    //     ? {
+    //         id: 4,
+    //         status: StatusEnum.SUCCESS,
+    //         userOrderingNumber: 4,
+    //         governmentOrderingNumber: 4,
+    //       }
+    //     : report.reportStatus,
   };
 
   return updatedReport;

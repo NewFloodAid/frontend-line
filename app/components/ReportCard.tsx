@@ -1,12 +1,13 @@
 import Image from "next/image";
 import { deleteReport } from "@/app/api/reports";
-import { GetReportBody } from "../types";
+import { GetReportBody, ImagePhaseEnum } from "../types";
 import CustomPopup, { popupType } from "./CustomPopup";
 import { useState } from "react";
 import { statusMapping, StatusEnum } from "../status";
 import SentComponent from "./reportcard/Sent";
 import PendingComponent from "./reportcard/Pending";
 import ReportCardMapComponent from "./reportcard/Map";
+import SuccessComponent from "./reportcard/Success";
 
 type ReportCardProps = {
   report: GetReportBody;
@@ -25,6 +26,8 @@ const ReportCard: React.FC<ReportCardProps> = ({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [reportIdToDelete, setReportIdToDelete] = useState<number | null>(null);
   const createdAt = new Date(report.createdAt);
+  const beforeImages =
+    report.images?.filter((img) => img.phase === ImagePhaseEnum.BEFORE) ?? [];
 
   const status = report.reportStatus.status;
   const title = statusMapping(status);
@@ -144,9 +147,9 @@ const ReportCard: React.FC<ReportCardProps> = ({
 
         {/* รูปแรก (จอเล็ก) */}
         <div className="w-32 h-32 bg-gray-200 rounded overflow-hidden md:hidden">
-          {report.images && report.images.length > 0 ? (
+          {beforeImages.length > 0 ? (
             <img
-              src={report.images[0].url} // ดึงรูปแรกใน array
+              src={beforeImages[0].url} // ดึงรูปแรกใน array
               alt="Report Assistance"
               className="object-cover w-full h-full"
             />
@@ -159,8 +162,8 @@ const ReportCard: React.FC<ReportCardProps> = ({
 
         {/* รูปทั้งหมด (จอใหญ่) */}
         <div className="hidden md:flex gap-2">
-          {report.images && report.images.length > 0 ? (
-            report.images.slice(0, 4).map((image, idx) => (
+          {beforeImages.length > 0 ? (
+            beforeImages.slice(0, 4).map((image, idx) => (
               <div
                 key={idx}
                 className="w-32 h-32 bg-gray-200 rounded overflow-hidden"
@@ -184,7 +187,7 @@ const ReportCard: React.FC<ReportCardProps> = ({
         <div className="px-6 py-4 space-y-4">
           {/* รูปภาพที่เหลือ (จอเล็ก) */}
           <div className="flex gap-2 overflow-x-auto md:hidden">
-            {report.images?.slice(1, 4).map((image, idx) => (
+            {beforeImages?.slice(1, 4).map((image, idx) => (
               <div
                 key={idx}
                 className="w-32 h-32 bg-gray-200 rounded overflow-hidden"
@@ -205,6 +208,7 @@ const ReportCard: React.FC<ReportCardProps> = ({
 
           <SentComponent report={report} />
           <PendingComponent report={report} />
+          <SuccessComponent report={report} />
         </div>
       )}
 

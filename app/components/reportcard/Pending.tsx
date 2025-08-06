@@ -2,11 +2,11 @@ import { GetReportBody } from "@/app/types";
 import React from "react";
 import { StatusEnum } from "@/app/status";
 
-interface AssistancesProps {
+interface Props {
   report: GetReportBody;
 }
 
-const PendingComponent: React.FC<AssistancesProps> = ({ report }) => {
+const PendingComponent: React.FC<Props> = ({ report }) => {
   return (
     report.reportStatus.status === StatusEnum.PENDING && (
       <div className="px-6 pt-4">
