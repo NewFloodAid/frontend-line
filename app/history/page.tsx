@@ -1,32 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@/app/providers/userContext";
-import ReportCard from "@/app/components/ReportCard";
-import { getReport } from "@/app/api/reports";
-import { GetReportBody } from "../types";
+import { getReports } from "@/api/reports";
+import { Report } from "@/types/Report";
+import ReportCard from "@/components/reportCard/ReportCard";
+import { useRouter } from "next/navigation";
 
-const History = () => {
-  const user = useUser();
-  const [reports, setReports] = useState<GetReportBody[]>([]);
+function History() {
+  const router = useRouter();
+  const [reports, setReports] = useState<Report[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
+
+  const fetchReports = async () => {
+    const uid = localStorage.getItem("uid");
+    if (!uid) {
+      router.replace("/");
+    } else {
+      const data = await getReports(uid);
+      setReports(data);
+    }
+  };
 
   useEffect(() => {
     fetchReports();
-    const interval = setInterval(fetchReports, 10000); // อัพเดตทุกๆ 10 วินาที
-    return () => clearInterval(interval);
-  }, [user?.uid]);
 
-  const fetchReports = async () => {
-    try {
-      if (user?.uid) {
-        const data = await getReport(user.uid);
-        setReports(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch reports:", error);
-    }
-  };
+    const interval = setInterval(() => {
+      fetchReports();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="grid auto-rows-min gap-4 min-h-screen bg-[#505050] py-4">
@@ -39,10 +42,11 @@ const History = () => {
           onToggleExpand={() =>
             setExpandedCardId(expandedCardId === report.id ? null : report.id)
           }
+          fetchReports={fetchReports}
         />
       ))}
     </div>
   );
-};
+}
 
 export default History;

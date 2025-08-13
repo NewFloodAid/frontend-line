@@ -1,277 +1,211 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useUser } from "@/app/providers/userContext";
-import PersonalDetails from "@/app/components/form/PersonalDetails";
-import Assistances from "@/app/components/form/Assistances";
-import NeedsAlert from "@/app/components/form/NeedsAlert";
-import Details from "@/app/components/form/Details";
-import FileUpload from "@/app/components/form/FileUpload";
-import { createReport, createUpdateReport } from "./createReport";
-import { sendReport, getReport, sentUpdateReport } from "@/app/api/reports";
-import { getAssistanceTypes } from "@/app/api/getAssistanceTypes";
-import * as Types from "@/app/types";
-import { statusMapping, StatusEnum } from "@/app/status";
-import { deleteImageApi } from "@/app/api/images";
-import CustomPopup, { popupType } from "../components/CustomPopup";
+import { useEffect, useState, useTransition } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { ReportFormData } from "@/types/ReportFormData";
+import { AssistanceTypes } from "@/types/AssistanceTypes";
+import { Report, ReportImage } from "@/types/Report";
+import {
+  createFormDataFromReport,
+  defaultReportFormData,
+  createEditedReport,
+} from "@/configs/reportConfig";
+import { createReport, getReports, updateReport } from "@/api/reports";
+import { deleteImage } from "@/api/images";
+import PersonalSection from "@/components/formSections/PersonalSection";
+import AssistancesSection from "@/components/formSections/AssistancesSection";
+import AdditionalDetailSection from "@/components/formSections/AdditionalDetailSection";
+import ImageSection from "@/components/formSections/ImageSection";
+import getAddressFromLatLng from "@/libs/getAddressFromLatLng";
 
-const Form = () => {
-  const user = useUser();
+function Form() {
+  const router = useRouter();
 
-  // Formdata
-  const [userDetails, setUserDetails] = useState<Types.UserDetails>({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    alternatePhone: "",
-  });
-  const [assistances, setAssistances] = useState<Types.AssistanceItem[]>([]);
-  const [details, setDetails] = useState("");
-  const [files, setFiles] = useState<(File | Types.ReportImage)[]>([]);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [coordinates, setCoordinates] = useState<Types.Coordinates>({
-    lat: null,
-    lng: null,
-  });
-  const [imgId, setImgId] = useState<number[]>([]);
+  const [oldReport, setOldReport] = useState<Report>();
+  const [mode, setMode] = useState<"CREATE" | "EDIT" | "VEIW">();
 
-  // Form behavior
-  const [isLoading, setLoading] = useState(true);
-  const [showAlert, setShowAlert] = useState(false);
-  const [reportStatus, setReportStatus] = useState<StatusEnum>();
-  const [report, setReport] = useState<Types.GetReportBody>();
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const popupConfirm = () => {
-    window.location.href = "/history";
-  };
+  const [assistanceTypes, setAssistanceTypes] = useState<AssistanceTypes[]>([]);
+  const methods = useForm<ReportFormData>();
+  const {
+    setError,
+    clearErrors,
+    watch,
+    reset,
+    formState: { errors },
+  } = methods;
 
-  // Set report info from report id
-  const fetchFormdata = async (id: number) => {
-    if (!user?.uid) return;
-    const data = await getReport(user.uid);
-    const report = data.find((report) => report.id === id);
-    setReport(report);
-    // console.log(JSON.stringify(report));
-    if (!report) return;
-    setReportStatus(report.reportStatus.status);
-    setUserDetails({
-      firstName: report.firstName ?? "",
-      lastName: report.lastName ?? "",
-      phone: report.mainPhoneNumber ?? "",
-      alternatePhone: report.reservePhoneNumber ?? "",
-    });
-    const updatedAssistances = assistances.map((assistance) => {
-      const matchingAssistance = report.reportAssistances?.find(
-        (a) => a.assistanceType.id === assistance.id
-      );
-      return matchingAssistance
-        ? { ...assistance, quantity: matchingAssistance.quantity }
-        : assistance;
-    });
-    setAssistances(updatedAssistances);
-    setDetails(report.additionalDetail ?? "");
-    if (report.images) {
-      setFiles(report.images);
-    } else {
-      setFiles([]);
-    }
-  };
+  const [images, setImages] = useState<File[]>([]);
+  const [oldImages, setOldImages] = useState<ReportImage[]>([]);
+  const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
 
-  // Set user detail
-  const fetchUserInfo = async () => {
-    if (!user?.uid) return;
-    const data = await getReport(user.uid);
-    if (!data || (Array.isArray(data) && data.length === 0)) return;
-    const report = data[0];
-    setUserDetails({
-      firstName: report.firstName ?? "",
-      lastName: report.lastName ?? "",
-      phone: report.mainPhoneNumber ?? "",
-      alternatePhone: report.reservePhoneNumber ?? "",
-    });
-  };
+  const [isPending, startTransition] = useTransition();
+  const [confirmChecked, setConfirmChecked] = useState(false);
 
-  // Check urlParams
-  async function setup() {
+  function setupForm() {
     const urlParams = new URLSearchParams(window.location.search);
     const lat = urlParams.get("lat");
     const lng = urlParams.get("lng");
     const id = urlParams.get("id");
-    fetchAssistances();
     if (lat && lng) {
-      setCoordinates({ lat, lng });
-      fetchUserInfo();
-      setLoading(false);
+      startTransition(async () => {
+        const uid = localStorage.getItem("uid");
+        if (!uid) {
+          router.replace("/");
+        } else {
+          const reports = await getReports(uid);
+          const address = await getAddressFromLatLng(lat, lng);
+          const init = await defaultReportFormData(uid, address, reports[0]);
+          setAssistanceTypes(init.assistanceTypes);
+          reset(init.formData);
+          setMode("CREATE");
+        }
+      });
     } else if (id) {
-      fetchFormdata(Number(id));
-      setLoading(false);
+      startTransition(async () => {
+        const uid = localStorage.getItem("uid");
+        if (!uid) {
+          router.replace("/");
+        } else {
+          const reports = await getReports(uid);
+          const report = reports.find((report) => report.id === Number(id));
+          if (!report) {
+            router.replace("/request-location");
+          } else {
+            setOldReport(report);
+            const init = await createFormDataFromReport(report);
+            setAssistanceTypes(init.assistanceTypes);
+            reset(init.formData);
+            setOldImages(report.images);
+            if (report.reportStatus.status == "PENDING") {
+              setMode("EDIT");
+            } else {
+              setMode("VEIW");
+            }
+          }
+        }
+      });
     } else {
-      window.location.href = "/";
+      router.replace("/request-location");
     }
   }
 
-  // Get all assistance types
-  const fetchAssistances = async () => {
-    if (assistances.length !== 0) return;
-    const assistanceList = await getAssistanceTypes();
-    setAssistances(assistanceList || []);
-  };
-
   useEffect(() => {
-    setup();
-  }, [user]);
+    setupForm();
+  }, []);
 
-  // handle submit
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const isAnyChecked = assistances.some(
-      (assistance) => assistance.quantity > 0
-    ); // 1 need require
-    if (!isAnyChecked) {
-      setShowAlert(true);
+  async function handleUpdateReport(formData: ReportFormData) {
+    if (!oldReport) {
+      throw new Error("No report");
+    }
+    // ลบรูปก่อน
+    for (const id of deletedImageIds) {
+      await deleteImage(id);
+    }
+    // ดึง report ที่ลบรูปแล้วมา
+    const reports = await getReports(oldReport.userId);
+    const updatedOldReport = reports.find(
+      (report) => report.id == oldReport.id
+    );
+    if (!updatedOldReport) throw new Error("Report not found after update");
+    // อัพเดต report
+    const updatedReport = createEditedReport(formData, updatedOldReport);
+    await updateReport(updatedReport, images);
+  }
+
+  function onSubmit(data: ReportFormData) {
+    const assistances = watch("reportAssistances") || [];
+    const isAtLeastOneChecked = assistances.some((a) => a.isActive);
+
+    if (!isAtLeastOneChecked) {
+      setError("reportAssistances", {
+        type: "manual",
+        message: "กรุณาเลือกความช่วยเหลืออย่างน้อย 1 รายการ",
+      });
       return;
     }
-    setShowAlert(false);
-    if (!user?.uid) return;
-    // Create report if report has no status
-    if (!reportStatus) {
-      const report = await createReport(
-        user.uid,
-        coordinates,
-        userDetails,
-        assistances,
-        details
-      );
+
+    if (images.length + oldImages.length < 1) {
+      setError("images" as any, {
+        type: "manual",
+        message: "กรุณาอัปโหลดรูปอย่างน้อย 1 รูป",
+      });
+      return;
+    }
+
+    if (mode == "CREATE") {
+      startTransition(async () => {
+        await createReport(data, images);
+      });
+      router.replace("/success");
+    } else if (mode == "EDIT") {
       try {
-        const image = files.filter((file) => file instanceof File);
-        await sendReport(report, image);
-        window.location.href = "/success";
-      } catch (error) {
-        console.error("Error sending report:", error);
-      }
-      // Update report if report's status is PENDING
-    } else if (reportStatus == StatusEnum.PENDING) {
-      if (!report) return;
-      // console.log(report);
-      for (const id of imgId) {
-        // console.log(`Deleting image with id: ${id}`);
-        await deleteImageApi(id, report);
-      }
-      const data = await getReport(report.userId);
-      const updatedReport = data.find((item) => item.id === report?.id);
-      if (!updatedReport) {
-        setIsPopupOpen(true);
-        return;
-      }
-      // console.log(assistances);
-      const newReport = await createUpdateReport(
-        updatedReport,
-        userDetails,
-        assistances,
-        details
-      );
-      try {
-        const image = files.filter((file) => file instanceof File);
-        const result = await sentUpdateReport(newReport, image);
-        if (!result) {
-          alert("อัพเดตไม่สำเร็จ คำขอกำลังดำเนินการณ์");
-          return;
-        } else {
-          window.location.href = "/success";
-        }
-      } catch (error) {
-        console.error("Error sending report:", error);
+        startTransition(async () => {
+          await handleUpdateReport(data);
+        });
+        router.replace("/success");
+      } catch (e) {
+        console.error(e);
+        router.replace("/fail");
       }
     }
-  };
-
-  if (!user?.uid || isLoading) {
-    return <div>Loading...</div>;
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
-      <CustomPopup
-        isOpen={isPopupOpen}
-        onConfirm={popupConfirm}
-        onCancel={() => {}}
-        type={popupType.NOTFOUND}
-      />
-      <div className="w-full max-w-2xl bg-white p-8 shadow-md rounded-lg">
-        <form onSubmit={handleSubmit}>
-          {/* ข้อมูลผู้ใช้ */}
-          <PersonalDetails
-            userDetails={userDetails}
-            setUserDetails={setUserDetails}
-            reportStatus={reportStatus}
-          />
-          {/* ความต้องการ */}
-          <div className="mb-10">
-            <Assistances
-              assistances={assistances}
-              setAssistances={setAssistances}
-              reportStatus={reportStatus}
-            />
-            {showAlert && <NeedsAlert />}
-          </div>
-          {/* รายละเอียดเพิ่มเติม */}
-          <Details
-            details={details}
-            setDetails={setDetails}
-            reportStatus={reportStatus}
-          />
-          {/* อัปโหลดรูปภาพ */}
-          <FileUpload
-            files={files}
-            setFiles={setFiles}
-            id={imgId}
-            setId={setImgId}
-            reportStatus={reportStatus}
-          />
-          {/* ยืนยันข้อมูล */}
-          {(!reportStatus || reportStatus === StatusEnum.PENDING) && (
-            <div className="mt-4 mb-2 flex items-center justify-center">
-              <input
-                type="checkbox"
-                id="confirm"
-                checked={isConfirmed}
-                onChange={(e) => setIsConfirmed(e.target.checked)}
-                className="mr-4 w-6 h-6 transform scale-100"
-              />
-              <label htmlFor="confirm" className="text-red-600 text-base">
-                ยืนยันการส่งข้อมูล
-              </label>
-            </div>
-          )}
-          {/* ปุ่มส่งคำร้อง */}
-          {(!reportStatus || reportStatus === StatusEnum.PENDING) && (
-            <div className="flex justify-center w-full mt-4">
-              <button
-                type="submit"
-                disabled={!isConfirmed}
-                className={`mt-4 w-100 py-3 px-4 rounded-lg text-base transition ${
-                  isConfirmed
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                {!reportStatus ? "ขอความช่วยเหลือ" : "อัปเดตข้อมูล"}
-              </button>
-            </div>
-          )}
-          {/* แสดง Status ของ report ที่แก้ไขไม่ได้ */}
-          {reportStatus && reportStatus !== StatusEnum.PENDING && (
-            <p
-              className={`text-lg font-medium text-center flex justify-center ${
-                statusMapping(reportStatus).color
-              }`}
-            >
-              {statusMapping(reportStatus).label}
-            </p>
-          )}
-        </form>
+    <div className={`${isPending ? "pointer-events-none opacity-50" : ""}`}>
+      <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
+        <div className="w-full max-w-2xl bg-white p-8 shadow-md rounded-lg">
+          <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+              <fieldset disabled={mode === "VEIW"}>
+                <PersonalSection />
+                <AssistancesSection assistanceTypes={assistanceTypes} />
+                {errors.reportAssistances && (
+                  <label className="text-red-500 mt-2">
+                    {errors.reportAssistances.message}
+                  </label>
+                )}
+                <AdditionalDetailSection />
+                <ImageSection
+                  onImagesChange={setImages}
+                  deletedImageIds={deletedImageIds}
+                  setDeletedImageIds={setDeletedImageIds}
+                  initialImages={oldImages}
+                />
+                {(errors as Record<string, any>).images && (
+                  <label className="text-red-500 mb-2">
+                    {(errors as Record<string, any>).images.message}
+                  </label>
+                )}
+
+                <label className="m-3 mt-10 text-red-500 flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    className="mr-4 w-6 h-6 transform scale-60"
+                    checked={confirmChecked}
+                    onChange={(e) => setConfirmChecked(e.target.checked)}
+                  />
+                  ยืนยันการส่งข้อมูล
+                </label>
+
+                <div className="flex justify-center">
+                  <button
+                    type="submit"
+                    className={`w-full ${
+                      !confirmChecked ? "disable-button" : "confirm-button"
+                    }`}
+                    disabled={!confirmChecked}
+                    onClick={() => clearErrors()}
+                  >
+                    ขอความช่วยเหลือ
+                  </button>
+                </div>
+              </fieldset>
+            </form>
+          </FormProvider>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default Form;

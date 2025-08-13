@@ -1,0 +1,165 @@
+"use client";
+import React, { useState } from "react";
+import { Report } from "@/types/Report";
+import Image from "next/image";
+import {
+  createUpdatedReport,
+  createUpdatedStatusReport,
+} from "@/configs/reportConfig";
+import { updateReport } from "@/api/reports";
+
+interface Props {
+  report: Report;
+  fetchReports: () => void;
+}
+
+const SentComponent: React.FC<Props> = ({ report, fetchReports }) => {
+  const [details, setDetails] = useState("");
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+
+  function handleDetailsChange(input: string) {
+    setDetails(input);
+  }
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selectedFiles = event.target.files
+      ? Array.from(event.target.files)
+      : [];
+    const imageFiles = selectedFiles.filter((file) =>
+      file.type.startsWith("image/")
+    );
+    setFiles((prevFiles) => {
+      const newFiles = [...prevFiles, ...imageFiles];
+      return newFiles.slice(0, 4); // จำกัดแค่ 4 รูป
+    });
+  }
+
+  async function handleRemoveFile(index: number) {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  }
+  async function handleUpdateReport() {
+    // 1. update report
+    const updatedReport = createUpdatedReport(report, details);
+    await updateReport(updatedReport, files);
+
+    // 2. update status
+    const updatedStatusReport = createUpdatedStatusReport(updatedReport);
+    await updateReport(updatedStatusReport);
+
+    fetchReports;
+  }
+
+  return (
+    report.reportStatus.status === "SENT" && (
+      <div className="pt-4">
+        {/* กล่อง textarea */}
+        <div>
+          <p className="font-medium mb-1">อัปเดตหลังการแก้ไข</p>
+          <textarea
+            placeholder="อธิบายเพิ่มเติม..."
+            name="afterAdditionalDetail"
+            value={details}
+            onChange={(e) => handleDetailsChange(e.target.value)}
+            className="w-full border rounded px-3 py-2 text-sm"
+            rows={3}
+          />
+        </div>
+
+        <p className="font-medium mt-3 mb-2">
+          แนบรูปถ่ายการแก้ไข (สูงสุด 4 รูป)
+        </p>
+        <label
+          htmlFor="dropzone-file"
+          className="flex flex-col items-center justify-center w-full h-80 md:h-96 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-100 relative"
+        >
+          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-2 p-2">
+            {files.map((file, index) => (
+              <div
+                key={index}
+                className="relative flex items-center justify-center border rounded-lg overflow-visible"
+              >
+                <img
+                  src={URL.createObjectURL(file as File)}
+                  alt={`Preview ${index + 1}`}
+                  className="h-full w-full object-cover"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                />
+                <button
+                  type="button"
+                  className="absolute -top-2 -right-2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleRemoveFile(index);
+                  }}
+                >
+                  <Image
+                    src="/delete-button.png"
+                    alt="Delete"
+                    width={30}
+                    height={30}
+                    priority
+                  />
+                </button>
+              </div>
+            ))}
+            {Array.from({ length: 4 - files.length }).map((_, index) => (
+              <div
+                key={`placeholder-${index}`}
+                className="flex items-center justify-center border rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  document.getElementById("dropzone-file")?.click();
+                }}
+              >
+                <p className="text-gray-500 text-base">อัปโหลดรูป</p>
+              </div>
+            ))}
+          </div>
+          <input
+            id="dropzone-file"
+            type="file"
+            className="hidden"
+            multiple
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+        </label>
+
+        {/* Checkbox */}
+        <div className="mt-4 mb-2 flex items-center justify-center">
+          <input
+            type="checkbox"
+            id="confirm"
+            className="mr-2 w-5 h-5 transform scale-100"
+            checked={isConfirmed}
+            onChange={(e) => setIsConfirmed(e.target.checked)}
+          />
+          <label htmlFor="confirm" className="text-green-600 text-base">
+            แก้ไขแล้ว
+          </label>
+        </div>
+
+        {/* ปุ่มอัปเดต */}
+        <div className="mt-4 mb-2 flex items-center justify-center">
+          <button
+            className={`w-full ${
+              !isConfirmed ? "disable-button" : "confirm-button"
+            }`}
+            disabled={!isConfirmed}
+            onClick={handleUpdateReport}
+          >
+            อัปเดต
+          </button>
+        </div>
+      </div>
+    )
+  );
+};
+
+export default SentComponent;

@@ -35,3 +35,35 @@ body {
 main {
   padding-top: 80px; /* เพิ่มช่องว่างให้พอเหมาะกับความสูงของ Navbar */
 }
+
+@layer base {
+  label {
+    @apply block font-medium text-gray-700 text-base;
+  }
+  h1 {
+    @apply text-4xl font-bold text-gray-900;
+  }
+  h2 {
+    @apply text-2xl font-semibold text-gray-800;
+  }
+}
+
+.input {
+  @apply w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-gray-700 text-base;
+}
+
+.additional {
+  @apply w-full h-40 md:h-52 mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-gray-700 text-base;
+}
+
+.confirm-button {
+  @apply mt-4 py-3 px-4 rounded-lg text-base transition bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.disable-button {
+  @apply mt-4 py-3 px-4 rounded-lg text-base transition bg-gray-300 text-gray-500;
+}
+
+.upload-image-button {
+  @apply flex w-full h-20 items-center justify-center text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none;
+}

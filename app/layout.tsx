@@ -1,7 +1,6 @@
 import React from "react";
-import { UserProvider } from "./providers/userContext";
-import GoogleMapsProvider from "./providers/GoogleMapsProvider";
-import Navbar from "./components/navbar";
+import GoogleMapsProvider from "../providers/GoogleMapsProvider";
+import Navbar from "../components/navbar/navbar";
 import "./globals.css";
 
 export default function RootLayout({
@@ -12,12 +11,10 @@ export default function RootLayout({
   return (
     <html lang="th">
       <body>
-        <UserProvider>
-          <GoogleMapsProvider>
-            <Navbar />
-            <main>{children}</main>
-          </GoogleMapsProvider>
-        </UserProvider>
+        <GoogleMapsProvider>
+          <Navbar />
+          <main>{children}</main>
+        </GoogleMapsProvider>
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-export const statusMapping = (status: StatusEnum) => {
+export const statusMapping = (status: string) => {
   const map: Record<string, { label: string; color: string }> = {
     PENDING: { label: "ยังไม่ได้รับเรื่อง", color: "text-red-500" },
     PROCESS: { label: "รวบรวมข้อมูล", color: "text-yellow-500" },
