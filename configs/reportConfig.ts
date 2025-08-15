@@ -83,7 +83,6 @@ export function createUpdatedReport(
     afterAdditionalDetail: details,
     reportAssistances: oldReport.reportAssistances.map((assist) => ({
       ...assist,
-      quantity: 0,
       isActive: false,
     })),
   };
