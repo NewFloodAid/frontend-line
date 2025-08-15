@@ -37,7 +37,7 @@ export default function AssistancesSection({
         <label key={field.id} className="m-3 flex items-center">
           <input
             type="checkbox"
-            className="mr-4 w-6 h-6 transform scale-60"
+            className="mr-4 w-6 h-6"
             checked={assistances[index]?.isActive || false}
             onChange={(e) => handleCheck(index, e.target.checked)}
           />
