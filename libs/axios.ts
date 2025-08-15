@@ -6,9 +6,18 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(
-  (config) => {
-    return config;
+  (request) => {
+    const jwtToken = localStorage.getItem("jwtToken");
+
+    if (request.url?.includes("/reports")) {
+      request.headers.Authorization = `Bearer ${jwtToken}`;
+      request.headers.set("X-Source-App", "LIFF");
+    }
+
+    // console.log(request);
+    return request;
   },
+
   (error) => {
     return Promise.reject(error);
   }

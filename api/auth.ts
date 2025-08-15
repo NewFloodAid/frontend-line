@@ -1,8 +1,8 @@
-import api from "@/libs/axios";
+import axiosClient from "@/libs/axios";
 
 async function getJwt(idToken: string) {
   try {
-    const res = await api.request({
+    const res = await axiosClient.request({
       url: "/auth/line-login",
       method: "post",
       headers: { IDToken: idToken },

@@ -1,9 +1,14 @@
-import api from "@/libs/axios";
+import axiosClient from "@/libs/axios";
 import { AssistanceTypes } from "@/types/AssistanceTypes";
 
 async function getAssistanceTypes() {
-  const res = await api.get<AssistanceTypes[]>("/assistanceTypes");
-  return res.data;
+  try {
+    const res = await axiosClient.get<AssistanceTypes[]>("/assistanceTypes");
+    return res.data;
+  } catch (err) {
+    console.error("Fetch reports failed:", err);
+    throw err;
+  }
 }
 
 export { getAssistanceTypes };
