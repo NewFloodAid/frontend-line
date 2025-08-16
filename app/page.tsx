@@ -36,6 +36,12 @@ function Page() {
             if ((e as Error).message === "InvalidLINEIDToken") {
               liff.logout();
               liff.login();
+            } else if (
+              (e as Error).message.includes("invalid authorization code")
+            ) {
+              console.info(
+                "Expired auth code, LIFF will re-login automatically."
+              );
             } else {
               throw e;
             }

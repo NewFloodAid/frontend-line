@@ -49,13 +49,10 @@ async function updateReport(report: ReportFormData, images?: File[]) {
 }
 
 async function deleteReport(id: number) {
-  try {
-    const res = await axiosClient.delete(`/reports/${id}`);
-    return res.data;
-  } catch (err) {
-    console.error("Update report failed:", err);
+  await axiosClient.delete(`/reports/${id}`).catch((err) => {
+    console.error("Delete report failed:", err);
     throw err;
-  }
+  });
 }
 
 export { getReports, createReport, updateReport, deleteReport };

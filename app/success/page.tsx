@@ -16,7 +16,7 @@ const Success = () => {
       <p className="mt-4 text-2xl font-bold text-green-500">
         ขอความช่วยเหลือสำเร็จ
       </p>
-      <Link href={"/"}>
+      <Link href={"/request-location"}>
         <button className="mt-4 px-6 py-2 border-2 border-blue-400 font-bold text-blue-400 rounded-lg hover:bg-blue-400 hover:text-white transition-all">
           ขอความช่วยเหลือถัดไป
         </button>
