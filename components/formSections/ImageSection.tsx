@@ -117,7 +117,7 @@ export default function ImageSection({
               className="absolute top-0 right-0"
             >
               <Image
-                src="/delete-button.png"
+                src="/buttons/delete-button.png"
                 alt="icon"
                 width={20}
                 height={20}
@@ -143,7 +143,7 @@ export default function ImageSection({
               className="absolute top-0 right-0"
             >
               <Image
-                src="/delete-button.png"
+                src="/buttons/delete-button.png"
                 alt="icon"
                 width={20}
                 height={20}
