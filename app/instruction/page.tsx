@@ -6,7 +6,7 @@ const Instruction = () => {
       {Array.from({ length: 7 }, (_, i) => (
         <Image
           key={i}
-          src={`/${i + 1}.jpg`}
+          src={`/instructions/${i + 1}.jpg`}
           alt={`Inst_${i + 1}`}
           width={800}
           height={600}

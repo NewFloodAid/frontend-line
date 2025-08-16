@@ -46,7 +46,7 @@ const Navbar: React.FC = () => {
   };
 
   const back = () => {
-    router.push("/");
+    router.push("/request-location");
   };
 
   return (
@@ -57,7 +57,7 @@ const Navbar: React.FC = () => {
           <button className="text-white text-lg">
             <Image
               onClick={back}
-              src="/logo-back.png"
+              src="/buttons/back-button.png"
               alt="Back Logo"
               width={30}
               height={30}
@@ -75,7 +75,7 @@ const Navbar: React.FC = () => {
             onClick={toggleMenu}
           >
             <Image
-              src="/logo-menu.png"
+              src="/buttons/menu-button.png"
               alt="Menu Logo"
               width={30}
               height={30}

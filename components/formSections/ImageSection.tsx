@@ -89,7 +89,7 @@ export default function ImageSection({
         onClick={openFileDialog}
         className="upload-image-button"
       >
-        <Image src="/form/upload-icon.svg" alt="icon" width={30} height={30} />
+        <Image src="/icons/upload-icon.svg" alt="icon" width={30} height={30} />
       </button>
       <input
         ref={inputRef}

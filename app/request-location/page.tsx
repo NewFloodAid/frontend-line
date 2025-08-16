@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { Report } from "@/types/Report";
 import { getReports } from "@/api/reports";
 import Image from "next/image";
 
 export default function MapComponent() {
+  const router = useRouter();
+
   const containerStyle = {
     width: "100%",
     height: "100%",
@@ -50,7 +53,7 @@ export default function MapComponent() {
       const data = await getReports(uid);
       setReport(data);
     } else {
-      window.location.replace("/");
+      router.replace("/");
     }
   };
 
@@ -69,7 +72,7 @@ export default function MapComponent() {
         const lng = center.lng();
 
         // ส่งผู้ใช้ไปยังหน้าฟอร์ม
-        window.location.href = `/form?lat=${lat}&lng=${lng}`;
+        router.push(`/form?lat=${lat}&lng=${lng}`);
       }
     }
   };
@@ -126,12 +129,12 @@ export default function MapComponent() {
                   lng: report.location.longitude,
                 }}
                 icon={{
-                  url: `/${pinColor}-pin.png`, // รูปภาพหมุด (เช่น yellow-pin.png)
+                  url: `/pins/${pinColor}-pin.png`, // รูปภาพหมุด (เช่น yellow-pin.png)
                   scaledSize: new window.google.maps.Size(37, 53),
                 }}
-                // onClick={() => {
-                //   window.location.href = `/form?id=${location.id}`;
-                // }}
+                onClick={() => {
+                  router.push(`/form?id=${report.id}`);
+                }}
               />
             );
           })}
@@ -152,8 +155,8 @@ export default function MapComponent() {
           onClick={handleButtonClick}
         >
           <Image
-            src="/pin-button.png" // รูปภาพปุ่ม
-            alt="Button"
+            src="/buttons/pin-button.png" // รูปภาพปุ่ม
+            alt="pin-button"
             width={150}
             height={150}
             priority
@@ -173,7 +176,12 @@ export default function MapComponent() {
           }}
           onClick={handleButtonGpsClick}
         >
-          <Image src="/gps-logo.png" alt="Pin" width={60} height={60} />
+          <Image
+            src="/buttons/target-button.png"
+            alt="target-button"
+            width={60}
+            height={60}
+          />
         </div>
       )}
 
@@ -189,7 +197,7 @@ export default function MapComponent() {
             pointerEvents: "none",
           }}
         >
-          <Image src="/blue-pin.png" alt="Pin" width={37} height={53} />
+          <Image src="/pins/red-pin.png" alt="Pin" width={37} height={53} />
         </div>
       )}
     </div>
