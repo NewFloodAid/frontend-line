@@ -38,13 +38,16 @@ main {
 
 @layer base {
   label {
-    @apply block font-medium text-gray-700 text-base;
+    @apply block text-gray-700 text-base;
   }
   h1 {
-    @apply text-4xl font-bold text-gray-900;
+    @apply text-3xl font-semibold text-gray-900;
   }
   h2 {
-    @apply text-2xl font-semibold text-gray-800;
+    @apply text-lg font-medium text-gray-900;
+  }
+  h3 {
+    @apply text-base font-semibold text-gray-800;
   }
 }
 
@@ -58,6 +61,10 @@ main {
 
 .confirm-button {
   @apply mt-4 py-3 px-4 rounded-lg text-base transition bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.cancel-button {
+  @apply mt-4 py-3 px-4 rounded-lg text-base transition bg-red-500 text-white hover:bg-red-600;
 }
 
 .disable-button {

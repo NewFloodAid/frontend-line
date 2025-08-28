@@ -1,5 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, {
+  TransitionStartFunction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Report } from "@/types/Report";
 import Image from "next/image";
 import {
@@ -10,44 +15,72 @@ import { updateReport } from "@/api/reports";
 
 interface Props {
   report: Report;
-  fetchReports: () => void;
+  fetchReports: () => Promise<void>;
+  startTransition: TransitionStartFunction;
 }
 
-const SentComponent: React.FC<Props> = ({ report, fetchReports }) => {
+const SentComponent: React.FC<Props> = ({
+  report,
+  fetchReports,
+  startTransition,
+}) => {
   const [details, setDetails] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  // render รูป
+  useEffect(() => {
+    const objectUrls = images.map((file) => URL.createObjectURL(file));
+    setImagePreviews(objectUrls);
+
+    return () => {
+      objectUrls.forEach(URL.revokeObjectURL);
+    };
+  }, [images]);
 
   function handleDetailsChange(input: string) {
     setDetails(input);
   }
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const selectedFiles = event.target.files
-      ? Array.from(event.target.files)
-      : [];
-    const imageFiles = selectedFiles.filter((file) =>
-      file.type.startsWith("image/")
-    );
-    setFiles((prevFiles) => {
-      const newFiles = [...prevFiles, ...imageFiles];
-      return newFiles.slice(0, 4); // จำกัดแค่ 4 รูป
+  // ปุ่มอัพรูป
+  const inputRef = useRef<HTMLInputElement>(null);
+  const openFileDialog = () => {
+    inputRef.current?.click();
+  };
+
+  // function อัพรูป
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const filesArray = Array.from(e.target.files);
+
+    setImages((prev) => {
+      const availableSlots = 4;
+      const filesToAdd = filesArray.slice(0, availableSlots);
+
+      return [...prev, ...filesToAdd];
     });
+
+    e.target.value = "";
+  };
+
+  // function ลบรูป
+  function handleRemoveFile(index: number) {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   }
 
-  async function handleRemoveFile(index: number) {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  }
-  async function handleUpdateReport() {
-    // 1. update report
-    const updatedReport = createUpdatedReport(report, details);
-    await updateReport(updatedReport, files);
+  function handleUpdateReport() {
+    startTransition(async () => {
+      // 1. update report
+      const updatedReport = createUpdatedReport(report, details);
+      await updateReport(updatedReport, images);
 
-    // 2. update status
-    const updatedStatusReport = createUpdatedStatusReport(updatedReport);
-    await updateReport(updatedStatusReport);
+      // 2. update status
+      const updatedStatusReport = createUpdatedStatusReport(updatedReport);
+      await updateReport(updatedStatusReport);
 
-    fetchReports;
+      fetchReports;
+    });
   }
 
   return (
@@ -61,75 +94,60 @@ const SentComponent: React.FC<Props> = ({ report, fetchReports }) => {
             name="afterAdditionalDetail"
             value={details}
             onChange={(e) => handleDetailsChange(e.target.value)}
-            className="w-full border rounded px-3 py-2 text-sm"
+            className="additional "
             rows={3}
           />
         </div>
 
-        <p className="font-medium mt-3 mb-2">
-          แนบรูปถ่ายการแก้ไข (สูงสุด 4 รูป)
-        </p>
-        <label
-          htmlFor="dropzone-file"
-          className="flex flex-col items-center justify-center w-full h-80 md:h-96 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-100 relative"
+        {/* ปุ่มอัพรูป */}
+        <label className="my-2">แนบรูปถ่ายสถานการณ์ (สูงสุด 4 รูป)</label>
+        <button
+          type="button"
+          onClick={openFileDialog}
+          className="upload-image-button"
         >
-          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-2 p-2">
-            {files.map((file, index) => (
-              <div
-                key={index}
-                className="relative flex items-center justify-center border rounded-lg overflow-visible"
-              >
-                <img
-                  src={URL.createObjectURL(file as File)}
-                  alt={`Preview ${index + 1}`}
-                  className="h-full w-full object-cover"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                />
-                <button
-                  type="button"
-                  className="absolute -top-2 -right-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleRemoveFile(index);
-                  }}
-                >
-                  <Image
-                    src="/delete-button.png"
-                    alt="Delete"
-                    width={30}
-                    height={30}
-                    priority
-                  />
-                </button>
-              </div>
-            ))}
-            {Array.from({ length: 4 - files.length }).map((_, index) => (
-              <div
-                key={`placeholder-${index}`}
-                className="flex items-center justify-center border rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  document.getElementById("dropzone-file")?.click();
-                }}
-              >
-                <p className="text-gray-500 text-base">อัปโหลดรูป</p>
-              </div>
-            ))}
-          </div>
-          <input
-            id="dropzone-file"
-            type="file"
-            className="hidden"
-            multiple
-            accept="image/*"
-            onChange={handleFileChange}
+          <Image
+            src="/icons/upload-icon.svg"
+            alt="icon"
+            width={30}
+            height={30}
           />
-        </label>
+        </button>
+        <input
+          ref={inputRef}
+          multiple
+          onChange={onFileChange}
+          className="sr-only"
+          type="file"
+        />
+
+        {/* พรีวิวรูปที่อัปโหลด */}
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          {imagePreviews.map((src, i) => (
+            <div
+              key={"new-" + i}
+              className="relative h-32 border rounded overflow-hidden"
+            >
+              <img
+                src={src}
+                alt={`new-${i}`}
+                className="w-full h-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveFile(i)}
+                className="absolute top-0 right-0"
+              >
+                <Image
+                  src="/buttons/delete-button.png"
+                  alt="icon"
+                  width={20}
+                  height={20}
+                />
+              </button>
+            </div>
+          ))}
+        </div>
 
         {/* Checkbox */}
         <div className="mt-4 mb-2 flex items-center justify-center">

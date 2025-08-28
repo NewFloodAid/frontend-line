@@ -1,220 +1,186 @@
 "use client";
-import Image from "next/image";
-import { useState } from "react";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import { TransitionStartFunction, useState } from "react";
 import { Report } from "@/types/Report";
-import CustomPopup, { popupType } from "../CustomPopup";
-import { statusMapping } from "../../app/status";
-import Map from "./reportCardSection/Map";
-import SentComponent from "./reportCardSection/Sent";
-import PendingComponent from "./reportCardSection/Pending";
-import SuccessComponent from "./reportCardSection/Success";
 import { deleteReport } from "@/api/reports";
+import { useRouter } from "next/navigation";
+import ConfirmModal from "./ConfirmModal";
+import Map from "./reportCardSection/Map";
+import Image from "next/image";
+import SentComponent from "./reportCardSection/Sent";
+import SuccessComponent from "./reportCardSection/Success";
+import {
+  StatusMappingENGToColor,
+  StatusMappingToTH,
+} from "@/app/constants/report_status";
 
-type ReportCardProps = {
+dayjs.extend(buddhistEra);
+
+interface Props {
   report: Report;
-  index: number;
+  startTransition: TransitionStartFunction;
+  fetchReports: () => Promise<void>;
   isExpanded: boolean;
-  onToggleExpand: () => void;
-  fetchReports: () => void;
-};
+  setExpandedCardId: (id: number | undefined) => void;
+}
 
-const ReportCard: React.FC<ReportCardProps> = ({
+//day.js
+function DateTH(dateStr: string) {
+  dayjs.locale("th");
+  const dt = dayjs(dateStr);
+  const date = dt.format("D/MM/BB");
+  const time = dt.format("HH:mm");
+  return { date, time };
+}
+
+function ReportCard({
   report,
-  index,
-  isExpanded,
-  onToggleExpand,
+  startTransition,
   fetchReports,
-}) => {
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [reportIdToDelete, setReportIdToDelete] = useState<number | null>(null);
-  const createdAt = new Date(report.createdAt);
-  const beforeImages =
-    report.images?.filter((img) => img.phase === "BEFORE") ?? [];
+  isExpanded,
+  setExpandedCardId,
+}: Props) {
+  const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
-  const status = report.reportStatus.status;
-  const title = statusMapping(status);
+  function handleDelete(id: number) {
+    startTransition(async () => {
+      await deleteReport(id);
+      await fetchReports();
+    });
+    setShowModal(false);
+  }
 
-  const formattedDate = createdAt.toLocaleDateString("th-TH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  });
+  function handlecardExpand(id: number) {
+    if (isExpanded) {
+      setExpandedCardId(undefined);
+    } else {
+      setExpandedCardId(id);
+    }
+  }
 
-  const formattedTime =
-    createdAt.toLocaleTimeString("th-TH", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: false,
-    }) + " น.";
-
-  const handleDelete = async (reportId: number, event: React.MouseEvent) => {
-    event.stopPropagation();
-    setReportIdToDelete(reportId); // เก็บ reportId ที่จะลบ
-    setIsPopupOpen(true); // เปิดป๊อปอัปยืนยัน
-  };
-
-  const handleConfirmDelete = async () => {
-    if (reportIdToDelete === null) return;
-    await deleteReport(reportIdToDelete);
-    fetchReports();
-  };
-
-  const handleCancelDelete = () => {
-    setIsPopupOpen(false);
-  };
+  function closeModal() {
+    setShowModal(false);
+  }
 
   return (
-    <div className="h-auto w-full rounded-2xl overflow-hidden shadow-lg bg-white mb-4 relative cursor-pointer">
-      {/* ปุ่มลบการ์ด */}
-      {report.reportStatus.status == "PENDING" && (
-        <button
-          className="absolute top-2 right-2 z-10"
-          title="ลบคำร้อง"
-          onClick={(e) => handleDelete(report.id, e)}
-        >
-          <Image
-            src="/delete-button.png"
-            alt="Delete"
-            width={30}
-            height={30}
-            priority
-          />
-        </button>
-      )}
-
-      {/* ป๊อปอัปยืนยันการลบ */}
-      <CustomPopup
-        isOpen={isPopupOpen}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-        type={popupType.Cancel}
-      />
-
-      <div className="px-6 py-4">
-        <div className="flex justify-between items-center text-base mb-2 relative">
-          <span className="text-left">คำร้องที่ {index}</span>
-          <div className="flex gap-4 mr-5">
-            <span className="text-center">{formattedDate}</span>
-            <span className="text-right">เวลา {formattedTime}</span>
-          </div>
+    <>
+      <div className="flex flex-row mb-5">
+        {/*วันเวลาส่งคำขอ*/}
+        <div className="flex flex-row">
+          <label className="mr-5">{DateTH(report.createdAt).date}</label>
+          <label>เวลา {DateTH(report.createdAt).time} น.</label>
         </div>
+
+        {report.reportStatus.status == "PENDING" && (
+          <div className="ml-auto flex gap-x-3">
+            {/*ปุ่มแก้ไข*/}
+            <button onClick={() => router.push(`/form?id=${report.id}`)}>
+              <Image
+                src="/buttons/edit-button.svg"
+                alt="edit"
+                width={30}
+                height={30}
+              />
+            </button>
+            {/*ปุ่มลบ*/}
+            <button onClick={() => setShowModal(true)}>
+              <Image
+                src="/buttons/delete-button.png"
+                alt="delete"
+                width={25}
+                height={25}
+              />
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="px-6 flex gap-4 items-start">
-        {/* ส่วนข้อมูลความช่วยเหลือ */}
-        <div className="flex-1">
-          {report.reportAssistances.map(
-            (assistance, index) =>
-              assistance.quantity > 0 && (
-                <div
-                  key={index}
-                  className={`text-base ${
-                    assistance.isActive ? "text-gray-800" : "text-green-600"
-                  }`}
-                >
-                  <p className="text-base font-medium py-2">
-                    {assistance.assistanceType.name}
-                  </p>
-                  {/* <p className="pl-3">
-                    จำนวน {assistance.quantity} {assistance.assistanceType.unit}
-                  </p> */}
-                </div>
-              )
-          )}
-          {/* แสดงรายละเอียดเพิ่มเติม */}
-          {report.additionalDetail && (
-            <div className="text-gray-600 text-base">
-              {/* <p className="text-base text-black font-medium py-2">
-                รายละเอียดสถานการณ์
-              </p> */}
-              <p className="pl-1">{report.additionalDetail}</p>
-            </div>
-          )}
+      {/*รายละเอียดสถานการณ์*/}
+      <div className="flex flex-row mb-3">
+        <div>
+          <h3 className="mb-3">
+            {
+              report.reportAssistances.find(
+                (assistance) => assistance.quantity > 0
+              )?.assistanceType.name
+            }
+          </h3>
+          <label className="ml-3">{report.additionalDetail}</label>
         </div>
 
-        {/* รูปแรก (จอเล็ก) */}
-        <div className="w-32 h-32 bg-gray-200 rounded overflow-hidden md:hidden">
-          {beforeImages.length > 0 ? (
-            <img
-              src={beforeImages[0].url} // ดึงรูปแรกใน array
-              alt="Report Assistance"
-              className="object-cover w-full h-full"
-            />
-          ) : (
-            <p className="text-gray-500 text-sm flex items-center justify-center h-full">
-              ไม่มีรูปภาพ
-            </p>
-          )}
-        </div>
-
-        {/* รูปทั้งหมด (จอใหญ่) */}
-        <div className="hidden md:flex gap-2">
-          {beforeImages.length > 0 ? (
-            beforeImages.slice(0, 4).map((image, idx) => (
-              <div
-                key={idx}
-                className="w-32 h-32 bg-gray-200 rounded overflow-hidden"
-              >
-                <img
-                  src={image.url}
-                  alt={`Report Image ${idx + 1}`}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500 text-sm flex items-center justify-center h-32">
-              ไม่มีรูปภาพ
-            </p>
-          )}
-        </div>
+        {/*รูปแรก*/}
+        <img
+          src={report.images.find((image) => image.phase == "BEFORE")?.url} // ดึงรูปแรกใน array
+          alt="report image"
+          className="object-cover w-24 h-24 rounded-md ml-auto"
+        />
       </div>
 
       {isExpanded && (
-        <div className="px-6 py-4 space-y-4">
-          {/* รูปภาพที่เหลือ (จอเล็ก) */}
-          <div className="flex gap-2 overflow-x-auto md:hidden justify-end">
-            {beforeImages?.slice(1, 4).map((image, idx) => (
-              <div
-                key={idx}
-                className="w-32 h-32 bg-gray-200 rounded overflow-hidden"
-              >
-                <img
-                  src={image.url}
-                  alt={`img-${idx}`}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            ))}
+        <>
+          {/*รูปที่เหลือ*/}
+          <div className="flex flex-row gap-2 justify-end mb-3">
+            {report.images
+              .slice(1)
+              .filter((image) => image.phase === "BEFORE")
+              .map((image, index) => {
+                return (
+                  <img
+                    src={image.url}
+                    key={index}
+                    alt="report image"
+                    className="object-cover w-24 h-24 rounded-md"
+                  />
+                );
+              })}
           </div>
 
-          {/* พิกัดหรือแผนที่ */}
-          <div className="w-full h-[200px] rounded overflow-hidden">
+          {/*แผนที่*/}
+          <div className="w-full border shadow-sm h-[200px] rounded overflow-hidden">
             <Map report={report} />
           </div>
 
-          <SentComponent report={report} fetchReports={fetchReports} />
-          <PendingComponent report={report} />
+          <SentComponent
+            report={report}
+            fetchReports={fetchReports}
+            startTransition={startTransition}
+          />
+
           <SuccessComponent report={report} />
-        </div>
+        </>
       )}
 
-      <div className="flex justify-between items-center px-6 py-4">
-        {/* ปุ่มดูรายละเอียด / ย่อการ์ด */}
-        <button
-          onClick={onToggleExpand}
-          className="text-blue-600 text-sm underline"
-        >
-          {isExpanded ? "ย่อการ์ด" : "ดูรายละเอียด"}
+      <div className="flex mt-5 pt-5 px-3 border-t border-gray-300">
+        <button onClick={() => handlecardExpand(report.id)}>
+          <Image
+            src="/buttons/button-arrow-expand.png"
+            alt="expand"
+            width={20}
+            height={20}
+            className={isExpanded ? "scale-y-[-1]" : ""}
+          />
         </button>
-
-        {/* สถานะคำร้อง */}
-        <p className={`text-lg font-medium ${title.color}`}>{title.label}</p>
+        <label
+          className={`ml-auto font-semibold ${
+            StatusMappingENGToColor[report.reportStatus.status]
+          }`}
+        >
+          {StatusMappingToTH[report.reportStatus.status]}
+        </label>
       </div>
 
-      {/* <div>{report.id}</div> */}
-    </div>
+      {showModal && (
+        <ConfirmModal
+          id={report.id}
+          handleDelete={handleDelete}
+          handleCancel={closeModal}
+        />
+      )}
+    </>
   );
-};
+}
 
 export default ReportCard;

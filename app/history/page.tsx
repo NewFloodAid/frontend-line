@@ -1,17 +1,17 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { getReports } from "@/api/reports";
 import { Report } from "@/types/Report";
-import ReportCard from "@/components/reportCard/ReportCard";
-import { useRouter } from "next/navigation";
+import NewReportCard from "@/components/reportCard/ReportCard";
 
 function History() {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [reports, setReports] = useState<Report[]>([]);
-  const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
+  const [expandedCardId, setExpandedCardId] = useState<number>();
 
-  const fetchReports = async () => {
+  async function fetchReports() {
     const uid = localStorage.getItem("uid");
     if (!uid) {
       router.replace("/");
@@ -19,32 +19,36 @@ function History() {
       const data = await getReports(uid);
       setReports(data);
     }
-  };
+  }
 
   useEffect(() => {
-    fetchReports();
-
-    const interval = setInterval(() => {
-      fetchReports();
-    }, 5000);
-
+    startTransition(async () => {
+      await fetchReports();
+    });
+    const interval = setInterval(() => fetchReports(), 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="grid auto-rows-min gap-4 min-h-screen bg-[#505050] py-4">
-      {reports.map((report, index) => (
-        <ReportCard
-          key={report.id}
-          report={report}
-          index={index + 1}
-          isExpanded={expandedCardId === report.id}
-          onToggleExpand={() =>
-            setExpandedCardId(expandedCardId === report.id ? null : report.id)
-          }
-          fetchReports={fetchReports}
-        />
-      ))}
+    <div className={`${isPending ? "pointer-events-none opacity-50" : ""}`}>
+      <div className="flex flex-col items-center min-h-screen bg-[#505050] p-3">
+        {reports.map((report) => {
+          return (
+            <div
+              className="w-full max-w-2xl bg-white p-5 my-2 shadow-md rounded-lg"
+              key={report.id}
+            >
+              <NewReportCard
+                report={report}
+                startTransition={startTransition}
+                fetchReports={fetchReports}
+                isExpanded={expandedCardId == report.id}
+                setExpandedCardId={setExpandedCardId}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

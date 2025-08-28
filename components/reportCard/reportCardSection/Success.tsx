@@ -1,5 +1,4 @@
 "use client";
-import { StatusEnum } from "@/app/status";
 import { Report } from "@/types/Report";
 
 interface Props {
@@ -12,7 +11,7 @@ const SuccessComponent: React.FC<Props> = ({ report }) => {
 
   return (
     <>
-      {report.reportStatus.status === StatusEnum.SUCCESS && (
+      {report.reportStatus.status === "SUCCESS" && (
         <>
           <div className="pt-4 space-y-4">
             {report.afterAdditionalDetail && (
