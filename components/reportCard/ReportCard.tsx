@@ -12,9 +12,9 @@ import Image from "next/image";
 import SentComponent from "./reportCardSection/Sent";
 import SuccessComponent from "./reportCardSection/Success";
 import {
-  StatusMappingENGToColor,
+  StatusMappingENGToTextColor,
   StatusMappingToTH,
-} from "@/app/constants/report_status";
+} from "@/constants/report_status";
 
 dayjs.extend(buddhistEra);
 
@@ -165,7 +165,7 @@ function ReportCard({
         </button>
         <label
           className={`ml-auto font-semibold ${
-            StatusMappingENGToColor[report.reportStatus.status]
+            StatusMappingENGToTextColor[report.reportStatus.status]
           }`}
         >
           {StatusMappingToTH[report.reportStatus.status]}

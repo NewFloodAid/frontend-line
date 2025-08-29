@@ -5,11 +5,18 @@ const StatusMappingToTH: { [key: string]: string } = {
   SUCCESS: "เสร็จสิ้น",
 };
 
-const StatusMappingENGToColor: { [key: string]: string } = {
+const StatusMappingENGToTextColor: { [key: string]: string } = {
   PENDING: "text-red-500",
   PROCESS: "text-orange-500",
   SENT: "text-blue-500",
   SUCCESS: "text-green-500",
+};
+
+const StatusMappingENGToPinColor: { [key: string]: string } = {
+  PENDING: "red",
+  PROCESS: "yellow",
+  SENT: "blue",
+  SUCCESS: "green",
 };
 
 const StatusMappingToENG: { [key: string]: string } = {
@@ -19,4 +26,9 @@ const StatusMappingToENG: { [key: string]: string } = {
   เสร็จสิ้น: "SUCCESS",
 };
 
-export { StatusMappingToTH, StatusMappingToENG, StatusMappingENGToColor };
+export {
+  StatusMappingToTH,
+  StatusMappingToENG,
+  StatusMappingENGToTextColor,
+  StatusMappingENGToPinColor,
+};
