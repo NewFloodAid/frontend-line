@@ -79,7 +79,7 @@ const SentComponent: React.FC<Props> = ({
       const updatedStatusReport = createUpdatedStatusReport(updatedReport);
       await updateReport(updatedStatusReport);
 
-      fetchReports;
+      fetchReports();
     });
   }
 

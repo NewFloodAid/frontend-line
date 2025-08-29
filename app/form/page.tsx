@@ -18,14 +18,18 @@ import AdditionalDetailSection from "@/components/formSections/AdditionalDetailS
 import ImageSection from "@/components/formSections/ImageSection";
 import getAddressFromLatLng from "@/libs/getAddressFromLatLng";
 
+interface ReportFormDataForForm extends ReportFormData {
+  images?: File[]; // ใช้เฉพาะ validation ไม่ส่งไป backend
+}
+
 function Form() {
   const router = useRouter();
 
   const [oldReport, setOldReport] = useState<Report>();
-  const [mode, setMode] = useState<"CREATE" | "EDIT" | "VEIW">();
+  const [mode, setMode] = useState<"CREATE" | "EDIT" | "VIEW">();
 
   const [assistanceTypes, setAssistanceTypes] = useState<AssistanceTypes[]>([]);
-  const methods = useForm<ReportFormData>();
+  const methods = useForm<ReportFormDataForForm>();
   const {
     setError,
     clearErrors,
@@ -79,7 +83,7 @@ function Form() {
             if (report.reportStatus.status == "PENDING") {
               setMode("EDIT");
             } else {
-              setMode("VEIW");
+              setMode("VIEW");
             }
           }
         }
@@ -125,7 +129,7 @@ function Form() {
     }
 
     if (images.length + oldImages.length < 1) {
-      setError("images" as any, {
+      setError("images", {
         type: "manual",
         message: "กรุณาอัปโหลดรูปอย่างน้อย 1 รูป",
       });
@@ -156,7 +160,7 @@ function Form() {
         <div className="w-full max-w-2xl bg-white p-8 shadow-md rounded-lg">
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
-              <fieldset disabled={mode === "VEIW"}>
+              <fieldset disabled={mode === "VIEW"}>
                 <PersonalSection />
                 <AssistancesSection assistanceTypes={assistanceTypes} />
                 {errors.reportAssistances && (
@@ -171,13 +175,13 @@ function Form() {
                   setDeletedImageIds={setDeletedImageIds}
                   initialImages={oldImages}
                 />
-                {(errors as Record<string, any>).images && (
+                {errors.images && (
                   <label className="text-red-500 mb-2">
-                    {(errors as Record<string, any>).images.message}
+                    {errors.images.message}
                   </label>
                 )}
 
-                {mode !== "VEIW" && (
+                {mode !== "VIEW" && (
                   <>
                     <label className="m-3 mt-10 text-red-500 flex items-center justify-center">
                       <input

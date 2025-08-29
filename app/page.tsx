@@ -49,7 +49,10 @@ function Page() {
         }
       }
     } catch (err) {
-      console.error("LIFF initialization failed: " + (err as Error).message);
+      // ถ้า error ไม่ใช่ invalid authorization code ถึง log เป็น error
+      if (!(err as Error).message.includes("invalid authorization code")) {
+        console.error("LIFF initialization failed: " + (err as Error).message);
+      }
     }
   }
 
