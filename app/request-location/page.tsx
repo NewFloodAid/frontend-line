@@ -1,205 +1,173 @@
+/*Since the map was loaded on client side, 
+we need to make this component client rendered as well*/
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+//Map component Component from library
 import { GoogleMap, Marker } from "@react-google-maps/api";
+import { useEffect, useState, useTransition, useRef } from "react";
 import { Report } from "@/types/Report";
-import { getReports } from "@/api/reports";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { getReports } from "@/api/reports";
+import { StatusMappingENGToPinColor } from "@/constants/report_status";
 
-export default function MapComponent() {
+//Map's styling
+const defaultMapContainerStyle = {
+  width: "100%",
+  height: "100%",
+};
+
+//Chiang Mai's coordinates
+const defaultMapCenter = {
+  lat: 18.796143,
+  lng: 98.979263,
+};
+
+//Default zoom level, can be adjusted
+const defaultMapZoom = 18;
+
+//Map options
+const defaultMapOptions = {
+  zoomControl: true,
+  tilt: 0,
+  gestureHandling: "auto",
+  streetViewControl: false,
+  mapTypeControl: false,
+  clickableIcons: false,
+  cameraControl: false,
+  fullscreenControl: false,
+};
+
+const Map = () => {
+  const mapRef = useRef<google.maps.Map>(null);
   const router = useRouter();
 
-  const containerStyle = {
-    width: "100%",
-    height: "100%",
-  };
+  const [isPending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(true);
+  const [center, setCenter] = useState(defaultMapCenter);
+  const [reports, setReports] = useState<Report[]>([]);
 
-  // Chiang Mai, Thailand
-  const centre = {
-    lat: 18.796143,
-    lng: 98.979263,
-  };
+  function handleLoad(map: google.maps.Map) {
+    mapRef.current = map;
+  }
 
-  const [userLocation, setUserLocation] =
-    useState<google.maps.LatLngLiteral | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const [reports, setReport] = useState<Report[]>([]);
+  function handleCenterChanged() {
+    if (!mapRef.current) return;
+    const newPos = mapRef.current.getCenter()?.toJSON();
+    if (!newPos) return;
+    setCenter(newPos);
+  }
 
-  useEffect(() => {
-    getUserLocation(10000);
-    fetchData();
-  }, []);
-
-  const getUserLocation = (timeout: number) => {
+  function getUserCoordinates() {
+    setLoading(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude }); // อัพเดทตำแหน่งผู้ใช้
+          setCenter({ lat: latitude, lng: longitude }); // อัพเดทตำแหน่งผู้ใช้
+          setLoading(false);
         },
-        () => {
-          setUserLocation(centre);
+        (error) => {
+          console.error("Fail to get coordinates: ", error);
+          setLoading(false);
         },
-        { timeout: timeout }
+        { timeout: 10000 }
       );
     }
-  };
+  }
 
-  const fetchData = async () => {
-    const uid = localStorage.getItem("uid");
-    const jwtToken = localStorage.getItem("jwtToken");
-    if (uid && jwtToken) {
-      const data = await getReports(uid);
-      setReport(data);
-    } else {
-      router.replace("/");
-    }
-  };
-
-  const handleButtonGpsClick = () => {
-    getUserLocation(Number.MAX_SAFE_INTEGER);
-    if (mapRef.current && userLocation) {
-      mapRef.current.panTo(userLocation); // เคลื่อนแผนที่ไปที่ตำแหน่งผู้ใช้
-    }
-  };
-
-  const handleButtonClick = () => {
-    if (mapRef.current) {
-      const center = mapRef.current.getCenter();
-      if (center) {
-        const lat = center.lat();
-        const lng = center.lng();
-
-        // ส่งผู้ใช้ไปยังหน้าฟอร์ม
-        router.push(`/form?lat=${lat}&lng=${lng}`);
+  function fetchData() {
+    startTransition(async () => {
+      const uid = localStorage.getItem("uid");
+      if (!uid) {
+        router.replace("/");
+      } else {
+        const res = await getReports(uid);
+        setReports(res);
       }
-    }
-  };
+    });
+  }
+
+  useEffect(() => {
+    fetchData();
+    getUserCoordinates();
+  }, []);
+
+  function handleButtonClick() {
+    router.push(`/form?lat=${center.lat}&lng=${center.lng}`);
+  }
 
   return (
     <div
-      style={{
-        position: "relative",
-        width: "100vw",
-        height: "calc(100vh - 80px)", // หักความสูง Navbar
-      }}
+      className={`relative w-full h-[calc(100vh-80px)] ${
+        isPending || loading ? "w-full pointer-events-none opacity-50" : ""
+      }`}
     >
-      {/* เช็คว่า userLocation ยังไม่มีค่า หรือ google ยังไม่โหลด */}
-      {!userLocation ? (
-        <div>Loading...</div>
-      ) : (
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={userLocation}
-          zoom={18}
-          options={{
-            streetViewControl: false,
-            mapTypeControl: false,
-            clickableIcons: false,
-            fullscreenControl: false,
-          }}
-          onLoad={(map) => {
-            mapRef.current = map;
-          }}
-        >
-          {reports.map((report) => {
-            // กำหนดสีของหมุดตามสถานะ
-            let pinColor;
-            switch (report.reportStatus.status) {
-              case "PENDING":
-                pinColor = "red";
-                break;
-              case "PROCESS":
-                pinColor = "yellow";
-                break;
-              case "SUCCESS":
-                pinColor = "green";
-                break;
-              case "SENT":
-                pinColor = "blue";
-                break;
-            }
+      <GoogleMap
+        mapContainerStyle={defaultMapContainerStyle}
+        center={center}
+        zoom={defaultMapZoom}
+        options={defaultMapOptions}
+        onLoad={handleLoad}
+        onDragEnd={handleCenterChanged}
+      >
+        {/* render หมุดตาม reports ที่มี */}
+        {reports.map((report) => {
+          const pinColor =
+            StatusMappingENGToPinColor[report.reportStatus.status];
 
-            return (
-              <Marker
-                key={report.id}
-                position={{
-                  lat: report.location.latitude,
-                  lng: report.location.longitude,
-                }}
-                icon={{
-                  url: `/pins/${pinColor}-pin.png`, // รูปภาพหมุด (เช่น yellow-pin.png)
-                  scaledSize: new window.google.maps.Size(37, 53),
-                }}
-                onClick={() => {
-                  router.push(`/form?id=${report.id}`);
-                }}
-              />
-            );
-          })}
-        </GoogleMap>
-      )}
+          return (
+            <Marker
+              key={report.id}
+              position={{
+                lat: report.location.latitude,
+                lng: report.location.longitude,
+              }}
+              icon={{
+                url: `/pins/${pinColor}-pin.png`, // รูปภาพหมุด (เช่น yellow-pin.png)
+                scaledSize: new window.google.maps.Size(37, 53),
+              }}
+              onClick={() => {
+                router.push(`/form?id=${report.id}`);
+              }}
+            />
+          );
+        })}
+      </GoogleMap>
+
+      {/* getUserCoordinates button */}
+      <div
+        className="absolute top-5 left-5 z-10 cursor-pointer"
+        onClick={getUserCoordinates}
+      >
+        <Image
+          src="/buttons/target-button.png"
+          alt="target-button"
+          width={60}
+          height={60}
+        />
+      </div>
 
       {/* ปุ่มปักหมุด */}
-      {!userLocation ? null : (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "20px", // ระยะห่างจากขอบล่าง
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 10,
-            cursor: "pointer",
-          }}
-          onClick={handleButtonClick}
-        >
-          <Image
-            src="/buttons/pin-button.png" // รูปภาพปุ่ม
-            alt="pin-button"
-            width={150}
-            height={150}
-            priority
-          />
-        </div>
-      )}
+      <div
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 cursor-pointer"
+        onClick={handleButtonClick}
+      >
+        <Image
+          src="/buttons/pin-button.png"
+          alt="pin-button"
+          width={150}
+          height={150}
+          priority
+        />
+      </div>
 
-      {/* ปุ่มอัพเดตตำแหน่ง */}
-      {!userLocation ? null : (
-        <div
-          style={{
-            position: "absolute",
-            top: "20px", // ระยะห่างจากขอบบน
-            left: "20px", // ระยะห่างจากขอบซ้าย
-            zIndex: 10,
-            cursor: "pointer",
-          }}
-          onClick={handleButtonGpsClick}
-        >
-          <Image
-            src="/buttons/target-button.png"
-            alt="target-button"
-            width={60}
-            height={60}
-          />
-        </div>
-      )}
-
-      {/* หมุดที่ลอยอยู่กลางจอ */}
-      {!userLocation ? null : (
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -100%)",
-            zIndex: 10,
-            pointerEvents: "none",
-          }}
-        >
-          <Image src="/pins/red-pin.png" alt="Pin" width={37} height={53} />
-        </div>
-      )}
+      {/* หมุดกลางจอ */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 pointer-events-none">
+        <Image src="/pins/red-pin.png" alt="Pin" width={37} height={53} />
+      </div>
     </div>
   );
-}
+};
+
+export default Map;

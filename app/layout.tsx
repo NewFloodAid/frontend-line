@@ -1,5 +1,5 @@
 import React from "react";
-import GoogleMapsProvider from "../providers/GoogleMapsProvider";
+import { MapProvider } from "@/providers/map-provider";
 import Navbar from "../components/navbar/navbar";
 import "./globals.css";
 
@@ -11,10 +11,10 @@ export default function RootLayout({
   return (
     <html lang="th">
       <body>
-        <GoogleMapsProvider>
+        <MapProvider>
           <Navbar />
           <main>{children}</main>
-        </GoogleMapsProvider>
+        </MapProvider>
       </body>
     </html>
   );
