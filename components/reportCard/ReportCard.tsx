@@ -11,12 +11,16 @@ import Map from "./reportCardSection/Map";
 import Image from "next/image";
 import SentComponent from "./reportCardSection/Sent";
 import SuccessComponent from "./reportCardSection/Success";
-import {
-  StatusMappingENGToTextColor,
-  StatusMappingToTH,
-} from "@/constants/report_status";
+import { StatusMappingToTH } from "@/constants/report_status";
 
 dayjs.extend(buddhistEra);
+
+const StatusMappingENGToTextColor: { [key: string]: string } = {
+  PENDING: "text-red-500",
+  PROCESS: "text-orange-500",
+  SENT: "text-blue-500",
+  SUCCESS: "text-green-500",
+};
 
 interface Props {
   report: Report;
