@@ -7,7 +7,7 @@ const Success = () => {
     <div className="flex flex-col items-center justify-center h-screen bg-blue-50">
       <div className="relative w-36 h-36">
         <Image
-          src="/check.png" // รูปภาพในโฟลเดอร์ public
+          src="/icons/check.png" // รูปภาพในโฟลเดอร์ public
           alt="Success"
           layout="fill"
           objectFit="contain"
