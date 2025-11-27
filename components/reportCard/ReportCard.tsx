@@ -114,39 +114,26 @@ function ReportCard({
           </h3>
           <label className="ml-3">{report.additionalDetail}</label>
         </div>
+      </div>
 
-        {/*รูปแรก*/}
-        <img
-          src={report.images.find((image) => image.phase == "BEFORE")?.url} // ดึงรูปแรกใน array
-          alt="report image"
-          className="object-cover w-24 h-24 rounded-md ml-auto"
-        />
+      {/*รูป*/}
+      <div className="flex flex-row gap-2 justify-start mb-3 overflow-x-auto flex-nowrap scroll-smooth">
+        {report.images
+          .filter((image) => image.phase === "BEFORE")
+          .map((image, index) => {
+            return (
+              <img
+                src={image.url}
+                key={index}
+                alt="report image"
+                className="h-32 rounded-md shadow-lg"
+              />
+            );
+          })}
       </div>
 
       {isExpanded && (
         <>
-          {/*รูปที่เหลือ*/}
-          <div className="flex flex-row gap-2 justify-end mb-3">
-            {report.images
-              .slice(1)
-              .filter((image) => image.phase === "BEFORE")
-              .map((image, index) => {
-                return (
-                  <img
-                    src={image.url}
-                    key={index}
-                    alt="report image"
-                    className="object-cover w-24 h-24 rounded-md"
-                  />
-                );
-              })}
-          </div>
-
-          {/*แผนที่*/}
-          <div className="w-full border shadow-sm h-[200px] rounded overflow-hidden">
-            <Map report={report} />
-          </div>
-
           <SentComponent
             report={report}
             fetchReports={fetchReports}
@@ -158,15 +145,17 @@ function ReportCard({
       )}
 
       <div className="flex mt-5 pt-5 px-3 border-t border-gray-300">
-        <button onClick={() => handlecardExpand(report.id)}>
-          <Image
-            src="/buttons/button-arrow-expand.png"
-            alt="expand"
-            width={20}
-            height={20}
-            className={isExpanded ? "scale-y-[-1]" : ""}
-          />
-        </button>
+        {report.reportStatus.status !== "PENDING" && (
+          <button onClick={() => handlecardExpand(report.id)}>
+            <Image
+              src="/buttons/button-arrow-expand.png"
+              alt="expand"
+              width={20}
+              height={20}
+              className={isExpanded ? "scale-y-[-1]" : ""}
+            />
+          </button>
+        )}
         <label
           className={`ml-auto font-semibold ${
             StatusMappingENGToTextColor[report.reportStatus.status]
