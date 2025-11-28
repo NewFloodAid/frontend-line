@@ -10,7 +10,12 @@ import {
   defaultReportFormData,
   createEditedReport,
 } from "@/configs/reportConfig";
-import { createReport, getReports, updateReport } from "@/api/reports";
+import {
+  createReport,
+  getReportById,
+  getReports,
+  updateReport,
+} from "@/api/reports";
 import { deleteImage } from "@/api/images";
 import PersonalSection from "@/components/formSections/PersonalSection";
 import AssistancesSection from "@/components/formSections/AssistancesSection";
@@ -26,7 +31,7 @@ function Form() {
   const router = useRouter();
 
   const [oldReport, setOldReport] = useState<Report>();
-  const [mode, setMode] = useState<"CREATE" | "EDIT" | "VIEW">();
+  const [mode, setMode] = useState<"CREATE" | "EDIT" | "VIEW" | "NOTFOUND">();
 
   const [assistanceTypes, setAssistanceTypes] = useState<AssistanceTypes[]>([]);
   const methods = useForm<ReportFormDataForForm>();
@@ -56,6 +61,7 @@ function Form() {
         if (!uid) {
           router.replace("/");
         } else {
+          // ดึงข้อมูลชื่อของผู้ใช้มาเติมในฟอร์ม
           const reports = await getReports(uid);
           const address = await getAddressFromLatLng(lat, lng);
           const init = await defaultReportFormData(uid, address, reports[0]);
@@ -66,26 +72,26 @@ function Form() {
       });
     } else if (id) {
       startTransition(async () => {
-        const uid = localStorage.getItem("uid");
-        if (!uid) {
-          router.replace("/");
-        } else {
-          const reports = await getReports(uid);
-          const report = reports.find((report) => report.id === Number(id));
+        try {
+          const report = await getReportById(id);
           if (!report) {
-            router.replace("/request-location");
-          } else {
-            setOldReport(report);
-            const init = await createFormDataFromReport(report);
-            setAssistanceTypes(init.assistanceTypes);
-            reset(init.formData);
-            setOldImages(report.images);
-            if (report.reportStatus.status == "PENDING") {
-              setMode("EDIT");
-            } else {
-              setMode("VIEW");
-            }
+            setMode("NOTFOUND");
+            return;
           }
+
+          setOldReport(report);
+          const init = await createFormDataFromReport(report);
+          setAssistanceTypes(init.assistanceTypes);
+          reset(init.formData);
+          setOldImages(report.images);
+
+          if (report.reportStatus.status == "PENDING") {
+            setMode("EDIT");
+          } else {
+            setMode("VIEW");
+          }
+        } catch (err: any) {
+          alert(err);
         }
       });
     } else {
@@ -152,6 +158,25 @@ function Form() {
         router.replace("/fail");
       }
     }
+  }
+
+  if (mode === "NOTFOUND") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+        <div className="w-full max-w-md bg-white p-8 shadow-md rounded-lg text-center">
+          <h2 className="text-2xl font-bold text-red-500">ไม่พบข้อมูลคำขอ</h2>
+          <p className="text-gray-600 mt-3">
+            ไม่พบคำขอความช่วยเหลือตามที่คุณร้องขอ อาจถูกลบไปแล้ว
+          </p>
+          <button
+            onClick={() => router.replace("/request-location")}
+            className="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg"
+          >
+            กลับไปหน้าเลือกตำแหน่ง
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

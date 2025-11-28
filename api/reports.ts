@@ -14,6 +14,18 @@ async function getReports(userId: string) {
   }
 }
 
+async function getReportById(id: string) {
+  try {
+    const res = await axiosClient.get<Report>(`/reports/${id}`);
+    return res.data;
+  } catch (err: any) {
+    if (err.response?.status === 404) {
+      return null;
+    }
+    throw err;
+  }
+}
+
 async function createReport(report: ReportFormData, images: File[]) {
   const formData = new FormData();
   formData.append("report", JSON.stringify(report));
@@ -55,4 +67,4 @@ async function deleteReport(id: number) {
   });
 }
 
-export { getReports, createReport, updateReport, deleteReport };
+export { getReports, getReportById, createReport, updateReport, deleteReport };
