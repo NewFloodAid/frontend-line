@@ -1,0 +1,77 @@
+"use client";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { getReports } from "@/api/reports";
+import { Report } from "@/types/Report";
+import NewReportCard from "@/components/reportCard/ReportCard";
+
+function community() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [expandedCardId, setExpandedCardId] = useState<number>();
+
+  const [statusFilter, setStatusFilter] = useState<number | undefined>(3);
+
+  async function fetchReports() {
+    const data = await getReports({ reportStatusId: statusFilter });
+    setReports(data);
+  }
+
+  useEffect(() => {
+    startTransition(async () => {
+      await fetchReports();
+    });
+    const interval = setInterval(() => fetchReports(), 5000);
+    return () => clearInterval(interval);
+  }, [statusFilter]);
+
+  return (
+    <div className={`${isPending ? "pointer-events-none opacity-50" : ""}`}>
+      <div className="flex flex-col items-center min-h-screen bg-[#505050] p-3">
+        <div className="flex flex-row">
+          <button
+            className={`${
+              statusFilter === 3
+                ? "bg-blue-500 text-white"
+                : "border border-blue-500 text-blue-500"
+            } hover:bg-blue-700 py-2 px-4 rounded-full mx-3`}
+            onClick={() => setStatusFilter(3)}
+          >
+            ส่งคำขอไปแล้ว
+          </button>
+
+          <button
+            className={`${
+              statusFilter === 4
+                ? "bg-green-500 text-white"
+                : "border border-green-500 text-green-500"
+            } hover:bg-green-700 py-2 px-4 rounded-full`}
+            onClick={() => setStatusFilter(4)}
+          >
+            คำขอได้รับการแก้ไข
+          </button>
+        </div>
+
+        {reports.map((report) => {
+          return (
+            <div
+              className="w-full max-w-2xl bg-white p-5 my-2 shadow-md rounded-lg"
+              key={report.id}
+            >
+              <NewReportCard
+                report={report}
+                startTransition={startTransition}
+                fetchReports={fetchReports}
+                isExpanded={expandedCardId == report.id}
+                setExpandedCardId={setExpandedCardId}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default community;

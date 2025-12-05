@@ -39,6 +39,15 @@ const Menu: React.FC<MenuProps> = ({ isOpen, closeMenu }) => {
           </li>
           <li>
             <Link
+              href="/community"
+              className="text-white-500 text-base hover:underline"
+              onClick={closeMenu}
+            >
+              คำขอความช่วยเหลือในชุมชน
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/instruction"
               className="text-white-500 text-base hover:underline"
               onClick={closeMenu}

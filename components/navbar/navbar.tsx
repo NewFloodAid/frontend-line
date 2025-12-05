@@ -20,6 +20,7 @@ const Navbar: React.FC = () => {
     "/success": " ",
     "/history": "ประวัติการขอความช่วยเหลือ",
     "/phone": "ติดต่อกู้ภัย",
+    "/community": "คำขอความช่วยเหลือในชุมชน",
     "/instruction": "วิธีใช้งาน",
   };
 
