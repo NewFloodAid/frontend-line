@@ -82,7 +82,7 @@ const Map = () => {
       if (!uid) {
         router.replace("/");
       } else {
-        const res = await getReports(uid);
+        const res = await getReports({ userId: uid });
         setReports(res);
       }
     });

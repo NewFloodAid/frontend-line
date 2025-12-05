@@ -16,7 +16,7 @@ function History() {
     if (!uid) {
       router.replace("/");
     } else {
-      const data = await getReports(uid);
+      const data = await getReports({ userId: uid });
       setReports(data);
     }
   }

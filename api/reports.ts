@@ -2,11 +2,23 @@ import axiosClient from "@/libs/axios";
 import { Report } from "@/types/Report";
 import { ReportFormData } from "@/types/ReportFormData";
 
-async function getReports(userId: string) {
+function buildParams(params: Record<string, any>) {
+  return Object.fromEntries(
+    Object.entries(params).filter(([_, v]) => v != null)
+  );
+}
+
+async function getReports(filters?: {
+  userId?: string;
+  reportStatusId?: number;
+}) {
   try {
-    const res = await axiosClient.get<Report[]>(
-      `/reports/filters?priorities=1,2,3,4&userId=${userId}`
-    );
+    const res = await axiosClient.get<Report[]>("/reports/filters", {
+      params: buildParams({
+        priorities: "1,2,3,4",
+        ...filters,
+      }),
+    });
     return res.data;
   } catch (err) {
     console.error("Fetch reports failed:", err);
@@ -14,7 +26,7 @@ async function getReports(userId: string) {
   }
 }
 
-async function getReportById(id: string) {
+async function getReportById(id: string | number) {
   try {
     const res = await axiosClient.get<Report>(`/reports/${id}`);
     return res.data;

@@ -62,7 +62,7 @@ function Form() {
           router.replace("/");
         } else {
           // ดึงข้อมูลชื่อของผู้ใช้มาเติมในฟอร์ม
-          const reports = await getReports(uid);
+          const reports = await getReports({ userId: uid });
           const address = await getAddressFromLatLng(lat, lng);
           const init = await defaultReportFormData(uid, address, reports[0]);
           setAssistanceTypes(init.assistanceTypes);
@@ -72,26 +72,34 @@ function Form() {
       });
     } else if (id) {
       startTransition(async () => {
-        try {
-          const report = await getReportById(id);
-          if (!report) {
-            setMode("NOTFOUND");
-            return;
-          }
+        const uid = localStorage.getItem("uid");
+        if (!uid) {
+          router.replace("/");
+        } else {
+          try {
+            const report = await getReportById(id);
+            if (!report) {
+              setMode("NOTFOUND");
+              return;
+            }
 
-          setOldReport(report);
-          const init = await createFormDataFromReport(report);
-          setAssistanceTypes(init.assistanceTypes);
-          reset(init.formData);
-          setOldImages(report.images);
+            setOldReport(report);
+            const init = await createFormDataFromReport(report);
+            setAssistanceTypes(init.assistanceTypes);
+            reset(init.formData);
+            setOldImages(report.images);
 
-          if (report.reportStatus.status == "PENDING") {
-            setMode("EDIT");
-          } else {
-            setMode("VIEW");
+            if (
+              report.reportStatus.status == "PENDING" &&
+              report.userId == uid
+            ) {
+              setMode("EDIT");
+            } else {
+              setMode("VIEW");
+            }
+          } catch (err: any) {
+            alert(err);
           }
-        } catch (err: any) {
-          alert(err);
         }
       });
     } else {
@@ -112,10 +120,8 @@ function Form() {
       await deleteImage(id);
     }
     // ดึง report ที่ลบรูปแล้วมา
-    const reports = await getReports(oldReport.userId);
-    const updatedOldReport = reports.find(
-      (report) => report.id == oldReport.id
-    );
+    const report = await getReportById(oldReport.id);
+    const updatedOldReport = report;
     if (!updatedOldReport) throw new Error("Report not found after update");
     // อัพเดต report
     const updatedReport = createEditedReport(formData, updatedOldReport);
