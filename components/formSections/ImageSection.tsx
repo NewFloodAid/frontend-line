@@ -99,18 +99,14 @@ export default function ImageSection({
         type="file"
       />
 
-      <div className="grid grid-cols-2 gap-3 mt-3">
+      <div className="mt-3">
         {/* แสดงรูปเก่า (URL) */}
         {imageUrls.map((url, i) => (
           <div
             key={"old-" + i}
-            className="relative h-32 border rounded overflow-hidden"
+            className="relative border rounded overflow-hidden mb-3"
           >
-            <img
-              src={url}
-              alt={`old-${i}`}
-              className="w-full h-full object-cover"
-            />
+            <img src={url} alt={`old-${i}`} className="w-full object-cover" />
             <button
               type="button"
               onClick={() => handleRemoveOldImage(i)}
@@ -130,13 +126,9 @@ export default function ImageSection({
         {newImagePreviews.map((src, i) => (
           <div
             key={"new-" + i}
-            className="relative h-32 border rounded overflow-hidden"
+            className="relative border rounded overflow-hidden mb-3"
           >
-            <img
-              src={src}
-              alt={`new-${i}`}
-              className="w-full h-full object-cover"
-            />
+            <img src={src} alt={`new-${i}`} className="w-full object-cover" />
             <button
               type="button"
               onClick={() => handleRemoveNewImage(i)}
