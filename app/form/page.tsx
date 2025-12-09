@@ -77,8 +77,8 @@ function Form() {
           router.replace("/");
         } else {
           try {
-            const report = await getReportById(id);
-            if (!report) {
+            const report = await getReportById(id, { userId: uid });
+            if (!report || report.reportStatus.status != "PENDING") {
               setMode("NOTFOUND");
               return;
             }
@@ -120,7 +120,9 @@ function Form() {
       await deleteImage(id);
     }
     // ดึง report ที่ลบรูปแล้วมา
-    const report = await getReportById(oldReport.id);
+    const report = await getReportById(oldReport.id, {
+      userId: oldReport.userId,
+    });
     const updatedOldReport = report;
     if (!updatedOldReport) throw new Error("Report not found after update");
     // อัพเดต report
@@ -172,7 +174,7 @@ function Form() {
         <div className="w-full max-w-md bg-white p-8 shadow-md rounded-lg text-center">
           <h2 className="text-2xl font-bold text-red-500">ไม่พบข้อมูลคำขอ</h2>
           <p className="text-gray-600 mt-3">
-            ไม่พบคำขอความช่วยเหลือตามที่คุณร้องขอ อาจถูกลบไปแล้ว
+            ไม่พบคำขอความช่วยเหลือตามที่คุณร้องขอ
           </p>
           <button
             onClick={() => router.replace("/request-location")}

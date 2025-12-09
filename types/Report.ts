@@ -61,3 +61,15 @@ export interface Report {
   reportAssistances: ReportAssistance[];
   images: ReportImage[];
 }
+
+export interface GetReportsQueryParams {
+  subDistrict?: string;
+  district?: string;
+  province?: string;
+  postalCode?: string;
+  reportStatusId?: number;
+  startDate?: string;
+  endDate?: string;
+  isUser?: boolean;
+  userId?: string;
+}
