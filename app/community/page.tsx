@@ -11,7 +11,7 @@ function community() {
   const [reports, setReports] = useState<Report[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<number>();
 
-  const [statusFilter, setStatusFilter] = useState<number | undefined>(3);
+  const [statusFilter, setStatusFilter] = useState<number>(1);
 
   async function fetchReports() {
     const data = await getReports({ reportStatusId: statusFilter });
@@ -32,11 +32,11 @@ function community() {
         <div className="flex flex-row">
           <button
             className={`${
-              statusFilter === 3
+              statusFilter === 1
                 ? "bg-blue-500 text-white"
                 : "border border-blue-500 text-blue-500"
             } hover:bg-blue-700 py-2 px-4 rounded-full mx-3`}
-            onClick={() => setStatusFilter(3)}
+            onClick={() => setStatusFilter(1)}
           >
             ส่งคำขอไปแล้ว
           </button>
