@@ -14,8 +14,13 @@ function community() {
   const [statusFilter, setStatusFilter] = useState<number>(1);
 
   async function fetchReports() {
-    const data = await getReports({ reportStatusId: statusFilter });
-    setReports(data);
+    const uid = localStorage.getItem("uid");
+    if (!uid) {
+      router.replace("/");
+    } else {
+      const data = await getReports({ reportStatusId: statusFilter }, uid);
+      setReports(data);
+    }
   }
 
   useEffect(() => {

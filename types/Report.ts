@@ -50,6 +50,7 @@ export interface Report {
   userId: string;
   firstName: string;
   lastName: string;
+  isAnonymous: boolean;
   location: Location;
   mainPhoneNumber: string;
   reservePhoneNumber: string;

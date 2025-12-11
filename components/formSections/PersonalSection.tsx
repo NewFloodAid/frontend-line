@@ -7,6 +7,14 @@ export default function PersonalSection() {
 
   return (
     <fieldset>
+      <label className="mb-4 flex justify-end ">
+        <input
+          type="checkbox"
+          {...register("isAnonymous")}
+          className="mr-4 w-6 h-6"
+        />
+        ไม่ระบุตัวตน
+      </label>
       <label>ชื่อ</label>
       <input
         {...register("firstName", { required: "กรุณากรอกชื่อ" })}

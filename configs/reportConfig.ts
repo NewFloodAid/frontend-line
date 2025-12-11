@@ -3,6 +3,7 @@ import { getAssistanceTypes } from "@/api/assistanceTypes";
 import { AssistanceTypes } from "@/types/AssistanceTypes";
 import { Report } from "@/types/Report";
 
+// สร้าง report type สำหรับใช้กับหน้า form
 export async function defaultReportFormData(
   uid: string,
   address: Location,
@@ -14,6 +15,7 @@ export async function defaultReportFormData(
     userId: uid,
     firstName: oldReport?.firstName || "",
     lastName: oldReport?.lastName || "",
+    isAnonymous: false,
     location: address,
     mainPhoneNumber: oldReport?.mainPhoneNumber || "",
     reservePhoneNumber: oldReport?.reservePhoneNumber || "",
@@ -28,6 +30,7 @@ export async function defaultReportFormData(
   return { formData, assistanceTypes };
 }
 
+// เปลี่ยน report type จาก backend ให้ใช้กับหน้า form ได้
 export async function createFormDataFromReport(
   report: Report
 ): Promise<{ formData: ReportFormData; assistanceTypes: AssistanceTypes[] }> {
@@ -37,6 +40,7 @@ export async function createFormDataFromReport(
     userId: report.userId,
     firstName: report.firstName,
     lastName: report.lastName,
+    isAnonymous: report.isAnonymous,
     location: report.location,
     mainPhoneNumber: report.mainPhoneNumber,
     reservePhoneNumber: report.reservePhoneNumber,
@@ -47,6 +51,7 @@ export async function createFormDataFromReport(
   return { formData, assistanceTypes };
 }
 
+// สร้าง report type ของ report ที่ user แก้ไขใช้ส่งต่อ backend
 export function createEditedReport(
   formData: ReportFormData,
   oldReport: Report
@@ -56,6 +61,7 @@ export function createEditedReport(
     userId: formData.userId,
     firstName: formData.firstName,
     lastName: formData.lastName,
+    isAnonymous: formData.isAnonymous,
     mainPhoneNumber: formData.mainPhoneNumber,
     reservePhoneNumber: formData.reservePhoneNumber,
     additionalDetail: formData.additionalDetail,
@@ -74,6 +80,7 @@ export function createEditedReport(
   };
 }
 
+// สร้าง report type ของ report ที่ user อัพเดทความคืบหน้าของคำขอใช้ส่งต่อ backend
 export function createUpdatedReport(
   oldReport: Report,
   details: string
@@ -88,6 +95,7 @@ export function createUpdatedReport(
   };
 }
 
+// อัพเดทสถานะของคำขอให้เป็น success
 export function createUpdatedStatusReport(oldReport: Report): Report {
   return {
     ...oldReport,

@@ -2,10 +2,11 @@ import axiosClient from "@/libs/axios";
 import { GetReportsQueryParams, Report } from "@/types/Report";
 import { ReportFormData } from "@/types/ReportFormData";
 
-async function getReports(params: GetReportsQueryParams) {
+async function getReports(params: GetReportsQueryParams, uid?: string) {
   try {
     const res = await axiosClient.get<Report[]>("/reports/filters", {
       params,
+      headers: { "X-User-Id": uid },
     });
     return res.data;
   } catch (err) {
@@ -19,7 +20,7 @@ async function getReportById(
   params: GetReportsQueryParams
 ) {
   try {
-    const reports = await getReports(params);
+    const reports = await getReports(params, params.userId);
     return reports.find((report) => report.id == id);
   } catch (err) {
     console.error("Fetch reports failed:", err);

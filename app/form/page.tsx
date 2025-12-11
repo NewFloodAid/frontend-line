@@ -78,7 +78,7 @@ function Form() {
         } else {
           try {
             const report = await getReportById(id, { userId: uid });
-            if (!report || report.reportStatus.status != "PENDING") {
+            if (!report) {
               setMode("NOTFOUND");
               return;
             }

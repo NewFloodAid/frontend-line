@@ -7,7 +7,6 @@ import { Report } from "@/types/Report";
 import { deleteReport } from "@/api/reports";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "./ConfirmModal";
-import Map from "./reportCardSection/Map";
 import Image from "next/image";
 import SentComponent from "./reportCardSection/Sent";
 import SuccessComponent from "./reportCardSection/Success";
@@ -71,10 +70,10 @@ function ReportCard({
 
   return (
     <>
-      <div className="flex flex-row mb-5">
+      <div className="flex flex-row">
         {/*วันเวลาส่งคำขอ*/}
         <div className="flex flex-row">
-          <label className="mr-5">{DateTH(report.createdAt).date}</label>
+          <label className="mr-2">{DateTH(report.createdAt).date}</label>
           <label>เวลา {DateTH(report.createdAt).time} น.</label>
         </div>
 
@@ -100,6 +99,15 @@ function ReportCard({
             </button>
           </div>
         )}
+      </div>
+
+      <div className="flex flex-row mb-5">
+        <div className="flex flex-row">
+          <label className="mr-2">ผู้แจ้ง</label>
+          <label>
+            {report.firstName} {report.lastName}
+          </label>
+        </div>
       </div>
 
       {/*รายละเอียดสถานการณ์*/}

@@ -23,6 +23,7 @@ export interface ReportFormData {
   firstName: string;
   lastName: string;
   location: Location;
+  isAnonymous: boolean;
   mainPhoneNumber: string;
   reservePhoneNumber: string;
   additionalDetail: string;
