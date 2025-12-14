@@ -5,7 +5,7 @@ import { getReports } from "@/api/reports";
 import { Report } from "@/types/Report";
 import NewReportCard from "@/components/reportCard/ReportCard";
 
-function community() {
+function Community() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [reports, setReports] = useState<Report[]>([]);
@@ -79,4 +79,4 @@ function community() {
   );
 }
 
-export default community;
+export default Community;

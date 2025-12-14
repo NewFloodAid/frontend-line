@@ -97,8 +97,8 @@ function Form() {
             } else {
               setMode("VIEW");
             }
-          } catch (err: any) {
-            alert(err);
+          } catch (err: unknown) {
+            alert(String(err));
           }
         }
       });
@@ -229,9 +229,8 @@ function Form() {
                     <div className="flex justify-center">
                       <button
                         type="submit"
-                        className={`w-full ${
-                          !confirmChecked ? "disable-button" : "confirm-button"
-                        }`}
+                        className={`w-full ${!confirmChecked ? "disable-button" : "confirm-button"
+                          }`}
                         disabled={!confirmChecked}
                         onClick={() => clearErrors()}
                       >
