@@ -154,7 +154,7 @@ const Map = () => {
         onClick={handleButtonClick}
       >
         <Image
-          src="/buttons/pin-button.png"
+          src="/buttons/new-pin-button.png"
           alt="pin-button"
           width={150}
           height={150}
@@ -163,9 +163,17 @@ const Map = () => {
       </div>
 
       {/* หมุดกลางจอ */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 pointer-events-none">
-        <Image src="/pins/red-pin.png" alt="Pin" width={37} height={53} />
-      </div>
+      {!loading && !isPending && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 pointer-events-none">
+          <Image src="/pins/red-pin.png" alt="Pin" width={37} height={53} />
+        </div>
+      )}
+
+      {(loading || isPending) && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
+          <div className="text-white text-xl font-semibold">กำลังโหลด...</div>
+        </div>
+      )}
     </div>
   );
 };
