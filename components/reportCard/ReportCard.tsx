@@ -152,17 +152,20 @@ function ReportCard({
         </>
       )}
 
-      <div className="flex mt-5 pt-5 px-3 border-t border-gray-300">
+      <div className="flex items-center mt-5 pt-2 border-t border-gray-300">
         {report.reportStatus.status !== "PENDING" &&
           report.reportStatus.status !== "PROCESS" && (
-            <button onClick={() => handlecardExpand(report.id)}>
-              <Image
-                src="/buttons/button-arrow-expand.png"
-                alt="expand"
-                width={20}
-                height={20}
-                className={isExpanded ? "scale-y-[-1]" : ""}
-              />
+            <button
+              onClick={() => handlecardExpand(report.id)}
+              className={`py-3 px-4 rounded-lg text-base transition text-white
+          ${
+            isExpanded
+              ? "bg-red-400 hover:bg-red-500"
+              : "bg-green-500 hover:bg-green-600"
+          }
+        `}
+            >
+              {isExpanded ? "ยกเลิก" : "อัพเดต"}
             </button>
           )}
         <label
