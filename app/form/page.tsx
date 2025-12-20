@@ -22,6 +22,14 @@ import AssistancesSection from "@/components/formSections/AssistancesSection";
 import AdditionalDetailSection from "@/components/formSections/AdditionalDetailSection";
 import ImageSection from "@/components/formSections/ImageSection";
 import getAddressFromLatLng from "@/libs/getAddressFromLatLng";
+import { StatusMappingToTH } from "@/constants/report_status";
+
+const StatusMappingENGToTextColor: { [key: string]: string } = {
+  PENDING: "text-red-500",
+  PROCESS: "text-orange-500",
+  SENT: "text-blue-500",
+  SUCCESS: "text-green-500",
+};
 
 interface ReportFormDataForForm extends ReportFormData {
   images?: File[]; // ใช้เฉพาะ validation ไม่ส่งไป backend
@@ -196,6 +204,15 @@ function Form() {
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <fieldset disabled={mode === "VIEW"}>
+                {mode == "VIEW" && oldReport && (
+                  <label
+                    className={`mb-5 font-semibold flex justify-center ${
+                      StatusMappingENGToTextColor[oldReport.reportStatus.status]
+                    }`}
+                  >
+                    {StatusMappingToTH[oldReport.reportStatus.status]}
+                  </label>
+                )}
                 <PersonalSection />
                 <AssistancesSection assistanceTypes={assistanceTypes} />
                 {errors.reportAssistances && (
