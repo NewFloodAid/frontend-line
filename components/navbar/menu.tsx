@@ -25,7 +25,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, closeMenu }) => {
               className="text-white-500 text-base hover:underline"
               onClick={closeMenu}
             >
-              ปักหมุดขอความช่วยเหลือ
+              ปักหมุดแจ้งเหตุ
             </Link>
           </li>
           <li>
@@ -34,7 +34,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, closeMenu }) => {
               className="text-white-500 text-base hover:underline"
               onClick={closeMenu}
             >
-              ประวัติขอความช่วยเหลือ
+              สิ่งที่ฉันแจ้ง
             </Link>
           </li>
           <li>
@@ -43,7 +43,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, closeMenu }) => {
               className="text-white-500 text-base hover:underline"
               onClick={closeMenu}
             >
-              คำขอความช่วยเหลือในชุมชน
+              สอดส่องชุมชน
             </Link>
           </li>
           <li>

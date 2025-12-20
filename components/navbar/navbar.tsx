@@ -15,12 +15,12 @@ const Navbar: React.FC = () => {
   // Mapping URL Pathname -> Title
   const pageTitles: Record<string, string> = {
     "/": "Loading...",
-    "/request-location": "ปักหมุดขอความช่วยเหลือ",
-    "/form": "กรอกข้อมูลขอความช่วยเหลือ",
+    "/request-location": "ปักหมุดแจ้งเหตุ",
+    "/form": "กรอกข้อมูลการแจ้งเหตุ",
     "/success": " ",
-    "/history": "ประวัติการขอความช่วยเหลือ",
+    "/history": "สิ่งที่ฉันแจ้ง",
     "/phone": "ติดต่อกู้ภัย",
-    "/community": "คำขอความช่วยเหลือในชุมชน",
+    "/community": "สอดส่องชุมชน",
     "/instruction": "วิธีใช้งาน",
   };
 

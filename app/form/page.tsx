@@ -137,7 +137,7 @@ function Form() {
     if (!isAtLeastOneChecked) {
       setError("reportAssistances", {
         type: "manual",
-        message: "กรุณาเลือกความช่วยเหลืออย่างน้อย 1 รายการ",
+        message: "กรุณาเลือกเรื่องที่ต้องการแจ้งอย่างน้อย 1 รายการ",
       });
       return;
     }
@@ -172,9 +172,11 @@ function Form() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
         <div className="w-full max-w-md bg-white p-8 shadow-md rounded-lg text-center">
-          <h2 className="text-2xl font-bold text-red-500">ไม่พบข้อมูลคำขอ</h2>
+          <h2 className="text-2xl font-bold text-red-500">
+            ไม่พบข้อมูลการแจ้งเรื่อง
+          </h2>
           <p className="text-gray-600 mt-3">
-            ไม่พบคำขอความช่วยเหลือตามที่คุณร้องขอ
+            ไม่พบข้อมูลการแจ้งเรื่องตามที่คุณร้องขอ
           </p>
           <button
             onClick={() => router.replace("/request-location")}
@@ -229,12 +231,13 @@ function Form() {
                     <div className="flex justify-center">
                       <button
                         type="submit"
-                        className={`w-full ${!confirmChecked ? "disable-button" : "confirm-button"
+                        className={`w-full ${
+                          !confirmChecked ? "disable-button" : "confirm-button"
                           }`}
                         disabled={!confirmChecked}
                         onClick={() => clearErrors()}
                       >
-                        {mode === "EDIT" ? "แก้ไขคำขอ" : "ขอความช่วยเหลือ"}
+                        {mode === "EDIT" ? "แก้ไขการแจ้งเรื่อง" : "แจ้งเรื่อง"}
                       </button>
                     </div>
                   </>

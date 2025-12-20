@@ -33,12 +33,20 @@ export default function AssistancesSection({
 
   return (
     <fieldset>
+      <div className="flex flex-row">
+        <label>เลือกเรื่องที่ต้องการแจ้งเหตุ</label>
+        <label className="text-red-500">*</label>
+      </div>
       {fields.map((field, index) => (
         <label key={field.id} className="m-3 flex items-center">
           <input
             type="checkbox"
             className="mr-4 w-6 h-6"
-            checked={assistances[index]?.isActive || false}
+            checked={
+              assistances[index]?.isActive ||
+              assistances[index]?.quantity > 0 ||
+              false
+            }
             onChange={(e) => handleCheck(index, e.target.checked)}
           />
           {assistanceTypes[index].name}

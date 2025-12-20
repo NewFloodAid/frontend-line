@@ -83,7 +83,11 @@ export default function ImageSection({
 
   return (
     <section>
-      <label className="my-2">แนบรูปถ่ายสถานการณ์ (สูงสุด 4 รูป)</label>
+      <div className="flex flex-row">
+        <label className="my-2">แนบรูปถ่ายสถานการณ์ (สูงสุด 4 รูป)</label>
+        <label className="text-red-500">*</label>
+      </div>
+
       <button
         type="button"
         onClick={openFileDialog}

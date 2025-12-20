@@ -15,17 +15,30 @@ export default function PersonalSection() {
         />
         ไม่ระบุตัวตน
       </label>
-      <label>ชื่อ</label>
+
+      <div className="flex flex-row">
+        <label>ชื่อ</label>
+        <label className="text-red-500">*</label>
+      </div>
       <input
         {...register("firstName", { required: "กรุณากรอกชื่อ" })}
         className="input mb-4"
       />
-      <label>นามสกุล</label>
+
+      <div className="flex flex-row">
+        <label>นามสกุล</label>
+        <label className="text-red-500">*</label>
+      </div>
+
       <input
         {...register("lastName", { required: "กรุณากรอกนามสกุล" })}
         className="input mb-4"
       />
-      <label>เบอร์โทรศัพท์</label>
+
+      <div className="flex flex-row">
+        <label>เบอร์โทรศัพท์</label>
+        <label className="text-red-500">*</label>
+      </div>
       <input
         {...register("mainPhoneNumber", { required: "กรุณากรอกเบอร์โทรศัพท์" })}
         className="input mb-4"
