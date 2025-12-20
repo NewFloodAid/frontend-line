@@ -70,7 +70,7 @@ function Form() {
           router.replace("/");
         } else {
           // ดึงข้อมูลชื่อของผู้ใช้มาเติมในฟอร์ม
-          const reports = await getReports({ userId: uid });
+          const reports = await getReports({ userId: uid }, uid);
           const address = await getAddressFromLatLng(lat, lng);
           const init = await defaultReportFormData(uid, address, reports[0]);
           setAssistanceTypes(init.assistanceTypes);
@@ -158,21 +158,26 @@ function Form() {
       return;
     }
 
-    if (mode == "CREATE") {
+    if (mode === "CREATE") {
       startTransition(async () => {
-        await createReport(data, images);
+        try {
+          await createReport(data, images);
+          router.replace("/success");
+        } catch (e) {
+          console.error(e);
+          router.replace("/fail");
+        }
       });
-      router.replace("/success");
-    } else if (mode == "EDIT") {
-      try {
-        startTransition(async () => {
+    } else if (mode === "EDIT") {
+      startTransition(async () => {
+        try {
           await handleUpdateReport(data);
-        });
-        router.replace("/success");
-      } catch (e) {
-        console.error(e);
-        router.replace("/fail");
-      }
+          router.replace("/success");
+        } catch (e) {
+          console.error(e);
+          router.replace("/fail");
+        }
+      });
     }
   }
 
@@ -250,7 +255,7 @@ function Form() {
                         type="submit"
                         className={`w-full ${
                           !confirmChecked ? "disable-button" : "confirm-button"
-                          }`}
+                        }`}
                         disabled={!confirmChecked}
                         onClick={() => clearErrors()}
                       >
