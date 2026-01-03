@@ -33,7 +33,7 @@ body {
 }
 
 main {
-  padding-top: 80px; /* เพิ่มช่องว่างให้พอเหมาะกับความสูงของ Navbar */
+  padding-top: 78px; /* เพิ่มช่องว่างให้พอเหมาะกับความสูงของ Navbar */
 }
 
 @layer base {

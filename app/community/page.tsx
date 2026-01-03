@@ -33,15 +33,16 @@ function Community() {
 
   return (
     <div className={`${isPending ? "pointer-events-none opacity-50" : ""}`}>
-      <div className="flex flex-col items-center min-h-screen bg-[#505050] p-3">
-        <div className="sticky top-[80px] bg-[#505050] py-3 w-full">
+      <div className="min-h-screen bg-[#505050]">
+        {/* แถบ filter */}
+        <div className="sticky top-[78px] bg-[#505050] py-3 z-20">
           <div className="flex justify-center">
             <button
               className={`${
                 statusFilter === 1
                   ? "bg-blue-500 text-white"
                   : "border border-blue-500 text-blue-500"
-              } hover:bg-blue-700 py-2 px-4 rounded-full mx-3`}
+              } py-2 px-4 rounded-full mx-3`}
               onClick={() => setStatusFilter(1)}
             >
               หน่วยงานรับเรื่องแล้ว
@@ -52,7 +53,7 @@ function Community() {
                 statusFilter === 4
                   ? "bg-green-500 text-white"
                   : "border border-green-500 text-green-500"
-              } hover:bg-green-700 py-2 px-4 rounded-full`}
+              } py-2 px-4 rounded-full`}
               onClick={() => setStatusFilter(4)}
             >
               คำขอได้รับการแก้ไข
@@ -60,11 +61,12 @@ function Community() {
           </div>
         </div>
 
-        {reports.map((report) => {
-          return (
+        {/* Card */}
+        <div className="flex flex-col items-center p-3 pt-4">
+          {reports.map((report) => (
             <div
-              className="w-full max-w-2xl bg-white p-5 my-2 shadow-md rounded-lg"
               key={report.id}
+              className="w-full max-w-2xl bg-white p-5 my-2 shadow-md rounded-lg"
             >
               <NewReportCard
                 report={report}
@@ -74,8 +76,8 @@ function Community() {
                 setExpandedCardId={setExpandedCardId}
               />
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );
