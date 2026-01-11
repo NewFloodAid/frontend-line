@@ -3,7 +3,11 @@ import { useFormContext } from "react-hook-form";
 import type { ReportFormData } from "@/types/ReportFormData";
 import InfoPopup from "@/components/InfoPopup";
 
-export default function PersonalSection() {
+interface Props {
+  mode: "CREATE" | "EDIT" | "VIEW" | undefined;
+}
+
+export default function PersonalSection({ mode }: Props) {
   const { register, watch } = useFormContext<ReportFormData>();
 
   // checkbox and popup behavior
@@ -13,6 +17,8 @@ export default function PersonalSection() {
     "ชื่อของคุณจะถูกซ่อนจากผู้ใช้อื่น และจะแสดงเฉพาะผู้รับเรื่องเท่านั้น";
 
   useEffect(() => {
+    if (mode === "VIEW") return;
+
     if (isAnonymous) {
       setPopup(true);
     }

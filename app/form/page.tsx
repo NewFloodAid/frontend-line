@@ -218,7 +218,7 @@ function Form() {
                     {StatusMappingToTH[oldReport.reportStatus.status]}
                   </label>
                 )}
-                <PersonalSection />
+                <PersonalSection mode={mode} />
                 <AssistancesSection assistanceTypes={assistanceTypes} />
                 {errors.reportAssistances && (
                   <label className="text-red-500 mt-2">
@@ -227,6 +227,7 @@ function Form() {
                 )}
                 <AdditionalDetailSection />
                 <ImageSection
+                  mode={mode}
                   onImagesChange={setImages}
                   deletedImageIds={deletedImageIds}
                   setDeletedImageIds={setDeletedImageIds}

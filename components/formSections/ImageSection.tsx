@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
 interface ImageSectionProps {
+  mode: "CREATE" | "EDIT" | "VIEW" | undefined;
   onImagesChange: (files: File[]) => void;
   deletedImageIds: number[];
   setDeletedImageIds: (numbers: number[]) => void;
@@ -10,6 +11,7 @@ interface ImageSectionProps {
 }
 
 export default function ImageSection({
+  mode,
   onImagesChange,
   deletedImageIds,
   setDeletedImageIds,
@@ -111,18 +113,20 @@ export default function ImageSection({
             className="relative border rounded overflow-hidden mb-3"
           >
             <img src={url} alt={`old-${i}`} className="w-full object-cover" />
-            <button
-              type="button"
-              onClick={() => handleRemoveOldImage(i)}
-              className="absolute top-0 right-0"
-            >
-              <Image
-                src="/buttons/delete-button.png"
-                alt="icon"
-                width={20}
-                height={20}
-              />
-            </button>
+            {mode !== "VIEW" && (
+              <button
+                type="button"
+                onClick={() => handleRemoveOldImage(i)}
+                className="absolute top-0 right-0"
+              >
+                <Image
+                  src="/buttons/delete-button.png"
+                  alt="icon"
+                  width={20}
+                  height={20}
+                />
+              </button>
+            )}
           </div>
         ))}
 
