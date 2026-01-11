@@ -8,7 +8,11 @@ export default function AdditionalDetailSection() {
   return (
     <fieldset className="my-3">
       <label>แจ้งรายละเอียดสถานการณ์</label>
-      <textarea {...register("additionalDetail")} className="additional" />
+      <textarea
+        {...register("additionalDetail")}
+        className="additional"
+        placeholder="อธิบายรายละเอียด ณ จุดที่เกิดปัญหา และจุดที่ตั้งคร่าว ๆ"
+      />
     </fieldset>
   );
 }

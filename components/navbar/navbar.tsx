@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
   // Mapping URL Pathname -> Title
   const pageTitles: Record<string, string> = {
     "/": "Loading...",
-    "/request-location": "ปักหมุดแจ้งเหตุ",
+    "/request-location": "ปักหมุด ณ จุดที่เกิดปัญหา",
     "/form": "กรอกข้อมูลการแจ้งเหตุ",
     "/success": " ",
     "/history": "สิ่งที่ฉันแจ้ง",
@@ -55,15 +55,20 @@ const Navbar: React.FC = () => {
       <nav className="navbar-fixed p-4">
         <div className="container mx-auto flex justify-between items-center">
           {/* Back button */}
-          <button className="text-white text-lg">
-            <Image
-              onClick={back}
-              src="/buttons/back-button.png"
-              alt="Back Logo"
-              width={30}
-              height={30}
-            />
-          </button>
+          <div className="w-[30px] h-[30px]">
+            {pathname !== "/request-location" ? (
+              <button className="text-white text-lg" onClick={back}>
+                <Image
+                  src="/buttons/back-button.png"
+                  alt="Back Logo"
+                  width={30}
+                  height={30}
+                />
+              </button>
+            ) : (
+              <div className="w-[30px] h-[30px]" />
+            )}
+          </div>
 
           {/* title */}
           <div className="flex-grow text-center">

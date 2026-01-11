@@ -153,8 +153,7 @@ function ReportCard({
       )}
 
       <div className="flex items-center mt-5 pt-2 border-t border-gray-300">
-        {report.reportStatus.status !== "PENDING" &&
-          report.reportStatus.status !== "PROCESS" && (
+        {report.reportStatus.status === "SENT" && (
             <button
               onClick={() => handlecardExpand(report.id)}
               className={`py-3 px-4 rounded-lg text-base transition text-white
@@ -168,6 +167,14 @@ function ReportCard({
               {isExpanded ? "ยกเลิก" : "อัพเดต"}
             </button>
           )}
+        {report.reportStatus.status === "SUCCESS" && (
+          <button
+            onClick={() => handlecardExpand(report.id)}
+            className="semi-bold text-gray-700 underline"
+          >
+            {isExpanded ? "ซ่อนรายละเอียด" : "แสดงรายละเอียด"}
+          </button>
+        )}
         <label
           className={`ml-auto font-semibold ${
             StatusMappingENGToTextColor[report.reportStatus.status]
