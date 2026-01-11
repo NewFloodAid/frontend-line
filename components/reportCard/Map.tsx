@@ -12,7 +12,7 @@ const defaultMapContainerStyle = {
   height: "100%",
 };
 
-const defaultMapZoom = 17;
+const defaultMapZoom = 16;
 
 const defaultMapOptions = {
   disableDefaultUI: true,
@@ -38,7 +38,7 @@ const ReportCardMapComponent: React.FC<Props> = ({ report }) => {
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="h-40 w-56 rounded-md overflow-hidden shadow-lg shrink-0">
       <GoogleMap
         mapContainerStyle={defaultMapContainerStyle}
         center={center}

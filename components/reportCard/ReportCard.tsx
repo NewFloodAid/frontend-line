@@ -11,6 +11,7 @@ import Image from "next/image";
 import SentComponent from "./reportCardSection/Sent";
 import SuccessComponent from "./reportCardSection/Success";
 import { StatusMappingToTH } from "@/constants/report_status";
+import ReportCardMapComponent from "./Map";
 
 dayjs.extend(buddhistEra);
 
@@ -124,8 +125,9 @@ function ReportCard({
         </div>
       </div>
 
-      {/*รูป*/}
+      {/*รูป และ แผนที่*/}
       <div className="flex flex-row gap-2 justify-start mb-3 overflow-x-auto flex-nowrap scroll-smooth">
+        <ReportCardMapComponent report={report} />
         {report.images
           .filter((image) => image.phase === "BEFORE")
           .map((image, index) => {
@@ -134,7 +136,7 @@ function ReportCard({
                 src={image.url}
                 key={index}
                 alt="report image"
-                className="h-32 rounded-md shadow-lg"
+                className="h-40 rounded-md shadow-lg"
               />
             );
           })}
@@ -154,19 +156,19 @@ function ReportCard({
 
       <div className="flex items-center mt-5 pt-2 border-t border-gray-300">
         {report.reportStatus.status === "SENT" && (
-            <button
-              onClick={() => handlecardExpand(report.id)}
-              className={`py-3 px-4 rounded-lg text-base transition text-white
+          <button
+            onClick={() => handlecardExpand(report.id)}
+            className={`py-3 px-4 rounded-lg text-base transition text-white
           ${
             isExpanded
               ? "bg-red-400 hover:bg-red-500"
               : "bg-green-500 hover:bg-green-600"
           }
         `}
-            >
-              {isExpanded ? "ยกเลิก" : "อัพเดต"}
-            </button>
-          )}
+          >
+            {isExpanded ? "ยกเลิก" : "อัพเดต"}
+          </button>
+        )}
         {report.reportStatus.status === "SUCCESS" && (
           <button
             onClick={() => handlecardExpand(report.id)}
