@@ -35,7 +35,7 @@ function Community() {
     <div className={`${isPending ? "pointer-events-none opacity-50" : ""}`}>
       <div className="min-h-screen bg-[#505050]">
         {/* แถบ filter */}
-        <div className="sticky top-[78px] bg-[#505050] py-3 z-50">
+        <div className="sticky top-[78px] bg-[#505050] py-3 z-40">
           <div className="flex justify-center">
             <button
               className={`${

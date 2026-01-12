@@ -11,7 +11,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, closeMenu }) => {
 
   return (
     <div
-      className="fixed top-[4rem] left-0 w-full h-full flex flex-col items-center z-20"
+      className="fixed top-[4rem] left-0 w-full h-full flex flex-col items-center z-50"
       style={{
         backgroundColor: "#505050", // ตั้งค่าสีพื้นหลัง
         marginTop: "15px", // กำหนดระยะห่างจาก navbar
