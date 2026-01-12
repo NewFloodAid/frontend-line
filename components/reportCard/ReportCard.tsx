@@ -92,7 +92,7 @@ function ReportCard({
             {/*ปุ่มลบ*/}
             <button onClick={() => setShowModal(true)}>
               <Image
-                src="/buttons/delete-button.png"
+                src="/buttons/bin.png"
                 alt="delete"
                 width={25}
                 height={25}

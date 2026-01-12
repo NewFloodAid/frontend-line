@@ -59,8 +59,8 @@ const Navbar: React.FC = () => {
             {pathname !== "/request-location" ? (
               <button className="text-white text-lg" onClick={back}>
                 <Image
-                  src="/buttons/back-button.png"
-                  alt="Back Logo"
+                  src="/buttons/pin.png"
+                  alt="Pin"
                   width={30}
                   height={30}
                 />
