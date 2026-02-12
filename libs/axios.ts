@@ -2,7 +2,7 @@ import axios from "axios";
 
 const axiosClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}`,
-  timeout: 10000,
+  timeout: 30000,
 });
 
 axiosClient.interceptors.request.use(
@@ -20,7 +20,7 @@ axiosClient.interceptors.request.use(
 
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosClient.interceptors.response.use(
@@ -29,7 +29,7 @@ axiosClient.interceptors.response.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosClient;
