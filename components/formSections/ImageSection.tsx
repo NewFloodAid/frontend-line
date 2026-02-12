@@ -2,6 +2,7 @@ import { ReportImage } from "@/types/Report";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
+import heic2any from "heic2any";
 
 interface ImageSectionProps {
   mode: "CREATE" | "EDIT" | "VIEW" | undefined;
@@ -10,23 +11,6 @@ interface ImageSectionProps {
   setDeletedImageIds: (numbers: number[]) => void;
   initialImages?: ReportImage[];
 }
-
-const compressImage = async (file: File) => {
-  const options = {
-    maxSizeMB: 0.6,
-    maxWidthOrHeight: 1280,
-    useWebWorker: true,
-    fileType: "image/jpeg",
-    initialQuality: 0.8,
-  };
-
-  try {
-    return await imageCompression(file, options);
-  } catch (error) {
-    console.error(error);
-    return file; // fallback
-  }
-};
 
 export default function ImageSection({
   mode,
@@ -42,6 +26,9 @@ export default function ImageSection({
 
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
 
+  const [compressing, setCompressing] = useState(false);
+  const [progress, setProgress] = useState(0);
+
   // render รูป
   useEffect(() => {
     const objectUrls = newImages.map((file) => URL.createObjectURL(file));
@@ -55,6 +42,47 @@ export default function ImageSection({
   useEffect(() => {
     setImageUrls(initialImages.map((image) => image.url));
   }, [initialImages]);
+
+  // แปลงไฟล์ HEIC ของ iphone
+  const convertHeicToJpeg = async (file: File): Promise<File> => {
+    const isHeic =
+      file.type === "image/heic" ||
+      file.type === "image/heif" ||
+      file.name.toLowerCase().endsWith(".heic");
+
+    if (!isHeic) return file;
+
+    const blob = await heic2any({
+      blob: file,
+      toType: "image/jpeg",
+    });
+
+    return new File([blob as Blob], file.name.replace(/\.heic$/i, ".jpg"), {
+      type: "image/jpeg",
+    });
+  };
+
+  // บีบรูป
+  const compressImage = async (file: File) => {
+    try {
+      setCompressing(true);
+
+      const converted = await convertHeicToJpeg(file);
+
+      const compressed = await imageCompression(converted, {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 1280,
+        useWebWorker: true,
+        fileType: "image/jpeg",
+        initialQuality: 0.8,
+        onProgress: (p) => setProgress(p),
+      });
+
+      return compressed;
+    } finally {
+      setCompressing(false);
+    }
+  };
 
   // อัพเดตรูปที่อัพ
   useEffect(() => {
@@ -127,6 +155,12 @@ export default function ImageSection({
         type="file"
         accept="image/*"
       />
+
+      {compressing && (
+        <div className="text-sm text-gray-500">
+          กำลังเตรียมรูป... {progress}%
+        </div>
+      )}
 
       <div className="mt-3">
         {/* แสดงรูปเก่า (URL) */}
