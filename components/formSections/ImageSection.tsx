@@ -1,6 +1,7 @@
 import { ReportImage } from "@/types/Report";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import imageCompression from "browser-image-compression";
 
 interface ImageSectionProps {
   mode: "CREATE" | "EDIT" | "VIEW" | undefined;
@@ -9,6 +10,23 @@ interface ImageSectionProps {
   setDeletedImageIds: (numbers: number[]) => void;
   initialImages?: ReportImage[];
 }
+
+const compressImage = async (file: File) => {
+  const options = {
+    maxSizeMB: 0.6,
+    maxWidthOrHeight: 1280,
+    useWebWorker: true,
+    fileType: "image/jpeg",
+    initialQuality: 0.8,
+  };
+
+  try {
+    return await imageCompression(file, options);
+  } catch (error) {
+    console.error(error);
+    return file; // fallback
+  }
+};
 
 export default function ImageSection({
   mode,
@@ -44,9 +62,13 @@ export default function ImageSection({
   }, [newImages, onImagesChange]);
 
   // function อัพรูป
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const filesArray = Array.from(e.target.files);
+
+    const compressedFiles = await Promise.all(
+      filesArray.map((file) => compressImage(file)),
+    );
 
     setNewImages((prev) => {
       const totalExisting = imageUrls.length + prev.length;
@@ -57,7 +79,7 @@ export default function ImageSection({
         return prev;
       }
 
-      const filesToAdd = filesArray.slice(0, availableSlots);
+      const filesToAdd = compressedFiles.slice(0, availableSlots);
 
       return [...prev, ...filesToAdd];
     });
@@ -103,6 +125,7 @@ export default function ImageSection({
         onChange={onFileChange}
         className="sr-only"
         type="file"
+        accept="image/*"
       />
 
       <div className="mt-3">
