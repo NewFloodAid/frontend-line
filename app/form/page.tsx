@@ -23,6 +23,7 @@ import AdditionalDetailSection from "@/components/formSections/AdditionalDetailS
 import ImageSection from "@/components/formSections/ImageSection";
 import getAddressFromLatLng from "@/libs/getAddressFromLatLng";
 import { StatusMappingToTH } from "@/constants/report_status";
+import FormError from "@/components/formSections/FormError";
 
 const StatusMappingENGToTextColor: { [key: string]: string } = {
   PENDING: "text-red-500",
@@ -221,9 +222,7 @@ function Form() {
                 <PersonalSection mode={mode} />
                 <AssistancesSection assistanceTypes={assistanceTypes} />
                 {errors.reportAssistances && (
-                  <label className="text-red-500 mt-2">
-                    {errors.reportAssistances.message}
-                  </label>
+                  <FormError message={errors.reportAssistances?.message} />
                 )}
                 <AdditionalDetailSection />
                 <ImageSection
@@ -234,9 +233,7 @@ function Form() {
                   initialImages={oldImages}
                 />
                 {errors.images && (
-                  <label className="text-red-500 mb-2">
-                    {errors.images.message}
-                  </label>
+                  <FormError message={errors.images?.message} />
                 )}
 
                 {mode !== "VIEW" && (
