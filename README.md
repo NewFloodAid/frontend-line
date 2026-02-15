@@ -2,11 +2,7 @@
 
 ## Setup
 
-1. install pnpm
-```bash
-npm install -g pnpm
-```
-2. install dependencies
+install dependencies
 ```bash
 pnpm install
 ```
