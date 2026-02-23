@@ -10,6 +10,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getReports } from "@/api/reports";
 import { StatusMappingENGToPinColor } from "@/constants/report_status";
+import ToggleSwitch from "@/components/ToggleSwitch";
 
 //Map's styling
 const defaultMapContainerStyle = {
@@ -41,11 +42,18 @@ const defaultMapOptions = {
 const Map = () => {
   const mapRef = useRef<google.maps.Map>(null);
   const router = useRouter();
+  const uid =
+    typeof window !== "undefined" ? localStorage.getItem("uid") : null;
 
   const [isPending, startTransition] = useTransition();
   const [loading, setLoading] = useState(true);
   const [center, setCenter] = useState(defaultMapCenter);
   const [reports, setReports] = useState<Report[]>([]);
+  const [showAllPin, setShowAllPin] = useState(false);
+
+  const filteredReports = showAllPin
+    ? reports
+    : reports.filter((report) => report.userId === uid);
 
   function handleLoad(map: google.maps.Map) {
     mapRef.current = map;
@@ -71,18 +79,17 @@ const Map = () => {
           console.error("Fail to get coordinates: ", error);
           setLoading(false);
         },
-        { timeout: 10000 }
+        { timeout: 10000 },
       );
     }
   }
 
   function fetchData() {
     startTransition(async () => {
-      const uid = localStorage.getItem("uid");
       if (!uid) {
         router.replace("/");
       } else {
-        const res = await getReports({ userId: uid });
+        const res = await getReports();
         setReports(res);
       }
     });
@@ -112,7 +119,7 @@ const Map = () => {
         onDragEnd={handleCenterChanged}
       >
         {/* render หมุดตาม reports ที่มี */}
-        {reports.map((report) => {
+        {filteredReports.map((report) => {
           const pinColor =
             StatusMappingENGToPinColor[report.reportStatus.status];
 
@@ -174,6 +181,15 @@ const Map = () => {
           <div className="text-white text-xl font-semibold">กำลังโหลด...</div>
         </div>
       )}
+
+      {/* toggle switch โชว์หมุดคนอื่น */}
+      <div className="absolute top-0 right-0 m-3 p-3 z-10 bg-white rounded-md">
+        <ToggleSwitch
+          label="แสดงหมุดของคนอื่น"
+          checked={showAllPin}
+          onChange={setShowAllPin}
+        />
+      </div>
     </div>
   );
 };

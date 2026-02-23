@@ -86,7 +86,7 @@ function Form() {
           router.replace("/");
         } else {
           try {
-            const report = await getReportById(id, { userId: uid });
+            const report = await getReportById(id);
             if (!report) {
               setMode("NOTFOUND");
               return;
