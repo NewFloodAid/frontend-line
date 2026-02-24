@@ -1,4 +1,3 @@
-import React from "react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import type { ReportFormData } from "@/types/ReportFormData";
 import { AssistanceTypes } from "@/types/AssistanceTypes";

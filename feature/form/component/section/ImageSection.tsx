@@ -3,9 +3,10 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import heic2any from "heic2any";
+import { FormMode } from "@/types/FormMode";
 
 interface ImageSectionProps {
-  mode: "CREATE" | "EDIT" | "VIEW" | undefined;
+  mode: FormMode;
   onImagesChange: (files: File[]) => void;
   deletedImageIds: number[];
   setDeletedImageIds: (numbers: number[]) => void;
@@ -35,7 +36,7 @@ export default function ImageSection({
     setNewImagePreviews(objectUrls);
 
     return () => {
-      objectUrls.forEach(URL.revokeObjectURL);
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [newImages]);
 
@@ -62,28 +63,6 @@ export default function ImageSection({
     });
   };
 
-  // บีบรูป
-  const compressImage = async (file: File) => {
-    try {
-      setCompressing(true);
-
-      const converted = await convertHeicToJpeg(file);
-
-      const compressed = await imageCompression(converted, {
-        maxSizeMB: 0.5,
-        maxWidthOrHeight: 1280,
-        useWebWorker: true,
-        fileType: "image/jpeg",
-        initialQuality: 0.8,
-        onProgress: (p) => setProgress(p),
-      });
-
-      return compressed;
-    } finally {
-      setCompressing(false);
-    }
-  };
-
   // อัพเดตรูปที่อัพ
   useEffect(() => {
     onImagesChange(newImages);
@@ -92,27 +71,45 @@ export default function ImageSection({
   // function อัพรูป
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const filesArray = Array.from(e.target.files);
 
-    const compressedFiles = await Promise.all(
-      filesArray.map((file) => compressImage(file)),
-    );
+    setCompressing(true);
 
-    setNewImages((prev) => {
-      const totalExisting = imageUrls.length + prev.length;
-      const availableSlots = MAX_IMAGES - totalExisting;
+    try {
+      const filesArray = Array.from(e.target.files);
 
-      if (availableSlots <= 0) {
-        e.target.value = "";
-        return prev;
-      }
+      const compressedFiles = await Promise.all(
+        filesArray.map(async (file) => {
+          const converted = await convertHeicToJpeg(file);
 
-      const filesToAdd = compressedFiles.slice(0, availableSlots);
+          return imageCompression(converted, {
+            maxSizeMB: 0.5,
+            maxWidthOrHeight: 1280,
+            useWebWorker: true,
+            fileType: "image/jpeg",
+            initialQuality: 0.6,
+            onProgress: (p) => setProgress(p),
+          });
+        }),
+      );
 
-      return [...prev, ...filesToAdd];
-    });
+      setNewImages((prev) => {
+        const totalExisting = imageUrls.length + prev.length;
+        const availableSlots = MAX_IMAGES - totalExisting;
 
-    e.target.value = "";
+        if (availableSlots <= 0) {
+          e.target.value = "";
+          return prev;
+        }
+
+        const filesToAdd = compressedFiles.slice(0, availableSlots);
+
+        return [...prev, ...filesToAdd];
+      });
+
+      e.target.value = "";
+    } finally {
+      setCompressing(false);
+    }
   };
 
   // function ลบรูปเก่า

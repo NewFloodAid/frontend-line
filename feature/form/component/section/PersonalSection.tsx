@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import type { ReportFormData } from "@/types/ReportFormData";
 import InfoPopup from "@/components/InfoPopup";
-import FormError from "./FormError";
+import FormError from "../FormError";
+import { FormMode } from "@/types/FormMode";
 
 interface Props {
-  mode: "CREATE" | "EDIT" | "VIEW" | undefined;
+  mode: FormMode;
 }
 
 export default function PersonalSection({ mode }: Props) {
