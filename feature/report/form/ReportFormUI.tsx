@@ -3,11 +3,11 @@ import { FormProvider, UseFormReturn } from "react-hook-form";
 import { ReportFormData } from "@/types/ReportFormData";
 import { AssistanceTypes } from "@/types/AssistanceTypes";
 import { Report, ReportImage } from "@/types/Report";
-import PersonalSection from "@/feature/form/component/section/PersonalSection";
-import AssistancesSection from "@/feature/form/component/section/AssistancesSection";
-import AdditionalDetailSection from "@/feature/form/component/section/AdditionalDetailSection";
-import ImageSection from "@/feature/form/component/section/ImageSection";
-import FormError from "./FormError";
+import PersonalSection from "@/feature/report/form/section/PersonalSection";
+import AssistancesSection from "@/feature/report/form/section/AssistancesSection";
+import AdditionalDetailSection from "@/feature/report/form/section/AdditionalDetailSection";
+import ImageSection from "@/feature/report/form/section/ImageSection";
+import ErrorMessage from "./component/FormErrorMessage";
 import FormCardLayout from "./FormCardLayout";
 import StatusBadge from "@/components/StatusBadge";
 import { FormMode } from "@/types/FormMode";
@@ -65,7 +65,9 @@ export default function ReportFormUI({
             )}
             <PersonalSection mode={mode} />
             <AssistancesSection assistanceTypes={assistanceTypes} />
-            <FormError message={errors.reportAssistances?.message as string} />
+            <ErrorMessage
+              message={errors.reportAssistances?.message as string}
+            />
             <AdditionalDetailSection />
             <ImageSection
               mode={mode}
@@ -74,7 +76,7 @@ export default function ReportFormUI({
               setDeletedImageIds={setDeletedImageIds}
               initialImages={oldImages}
             />
-            <FormError message={errors.images?.message as string} />
+            <ErrorMessage message={errors.images?.message as string} />
 
             <SubmitSection
               mode={mode}

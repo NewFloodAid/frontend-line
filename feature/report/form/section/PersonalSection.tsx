@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import type { ReportFormData } from "@/types/ReportFormData";
 import InfoPopup from "@/components/InfoPopup";
-import FormError from "../FormError";
+import ErrorMessage from "../component/FormErrorMessage";
 import { FormMode } from "@/types/FormMode";
 
 interface Props {
@@ -49,8 +49,10 @@ export default function PersonalSection({ mode }: Props) {
         </div>
         <input
           {...register("firstName", { required: "กรุณากรอกชื่อ" })}
-          className="input mb-4"
+          className="input"
         />
+        <ErrorMessage message={errors.firstName?.message} />
+        <div className="mb-4" />
 
         <div className="flex flex-row">
           <label>นามสกุล</label>
@@ -58,8 +60,10 @@ export default function PersonalSection({ mode }: Props) {
         </div>
         <input
           {...register("lastName", { required: "กรุณากรอกนามสกุล" })}
-          className="input mb-4"
+          className="input"
         />
+        <ErrorMessage message={errors.lastName?.message} />
+        <div className="mb-4" />
 
         <div className="flex flex-row">
           <label>เบอร์โทรศัพท์</label>
@@ -74,8 +78,11 @@ export default function PersonalSection({ mode }: Props) {
             },
           })}
           type="tel"
-          className="input mb-4"
+          className="input"
         />
+        <ErrorMessage message={errors.mainPhoneNumber?.message} />
+        <div className="mb-4" />
+
         <label>เบอร์สำรอง</label>
         <input
           {...register("reservePhoneNumber", {
@@ -86,12 +93,10 @@ export default function PersonalSection({ mode }: Props) {
           })}
           type="tel"
           pattern="[0-9]{10}"
-          className="input mb-4"
+          className="input"
         />
-        <FormError message={errors.firstName?.message} />
-        <FormError message={errors.lastName?.message} />
-        <FormError message={errors.mainPhoneNumber?.message} />
-        <FormError message={errors.reservePhoneNumber?.message} />
+        <ErrorMessage message={errors.reservePhoneNumber?.message} />
+        <div className="mb-4" />
       </fieldset>
     </>
   );
