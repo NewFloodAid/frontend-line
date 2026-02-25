@@ -1,7 +1,7 @@
 "use client";
 
 import ReportFormUI from "./ReportFormUI";
-import { useReportForm } from "@/feature/form/hooks/useReportForm";
+import { useReportForm } from "@/feature/report/form/hooks/useReportForm";
 import ReportNotFound from "./ReportNotFound";
 
 export default function ReportFormContainer() {

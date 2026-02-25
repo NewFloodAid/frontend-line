@@ -1,6 +1,6 @@
 "use client";
 
-import ReportFormContainer from "@/feature/form/component/ReportFormContainer";
+import ReportFormContainer from "@/feature/report/form/ReportFormContainer";
 
 export default function ReportFormPage() {
   return <ReportFormContainer />;

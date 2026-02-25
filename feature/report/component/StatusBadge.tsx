@@ -23,11 +23,7 @@ export default function StatusBadge({ status }: Props) {
   };
 
   return (
-    <label
-      className={`mb-5 font-semibold flex justify-center ${
-        StatusMappingENGToTextColor[status]
-      }`}
-    >
+    <label className={`${StatusMappingENGToTextColor[status]}`}>
       {StatusMappingToTH[status]}
     </label>
   );
