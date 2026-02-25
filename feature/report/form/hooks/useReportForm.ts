@@ -13,7 +13,7 @@ import {
   createFormDataFromReport,
   defaultReportFormData,
   createEditedReport,
-} from "@/feature/utils/reportConfig";
+} from "@/feature/report/utils/reportConfig";
 import { Report, ReportImage } from "@/types/Report";
 import { ReportFormData } from "@/types/ReportFormData";
 import { AssistanceTypes } from "@/types/AssistanceTypes";
