@@ -3,7 +3,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { getReports } from "@/api/reports";
 import { Report } from "@/types/Report";
-import NewReportCard from "@/components/reportCard/ReportCard";
+import ReportCard from "@/feature/report/component/ReportCard/index";
 
 function Community() {
   const router = useRouter();
@@ -68,7 +68,7 @@ function Community() {
               key={report.id}
               className="w-full max-w-2xl bg-white p-5 my-2 shadow-md rounded-lg"
             >
-              <NewReportCard
+              <ReportCard
                 report={report}
                 startTransition={startTransition}
                 fetchReports={fetchReports}

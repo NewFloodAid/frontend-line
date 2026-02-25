@@ -38,16 +38,14 @@ const ReportCardMapComponent: React.FC<Props> = ({ report }) => {
   };
 
   return (
-    <div className="h-40 w-56 rounded-md overflow-hidden shadow-lg shrink-0">
-      <GoogleMap
-        mapContainerStyle={defaultMapContainerStyle}
-        center={center}
-        zoom={defaultMapZoom}
-        options={defaultMapOptions}
-      >
-        <Marker position={center} />
-      </GoogleMap>
-    </div>
+    <GoogleMap
+      mapContainerStyle={defaultMapContainerStyle}
+      center={center}
+      zoom={defaultMapZoom}
+      options={defaultMapOptions}
+    >
+      <Marker position={center} />
+    </GoogleMap>
   );
 };
 

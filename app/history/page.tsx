@@ -3,7 +3,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { getReports } from "@/api/reports";
 import { Report } from "@/types/Report";
-import NewReportCard from "@/components/reportCard/ReportCard";
+import ReportCard from "@/feature/report/component/ReportCard/index";
 
 function History() {
   const router = useRouter();
@@ -38,7 +38,7 @@ function History() {
               className="w-full max-w-2xl bg-white p-5 my-2 shadow-md rounded-lg"
               key={report.id}
             >
-              <NewReportCard
+              <ReportCard
                 report={report}
                 startTransition={startTransition}
                 fetchReports={fetchReports}

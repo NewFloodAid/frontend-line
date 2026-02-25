@@ -10,7 +10,7 @@ import Image from "next/image";
 import {
   createUpdatedReport,
   createUpdatedStatusReport,
-} from "@/feature/utils/reportConfig";
+} from "@/feature/report/utils/reportConfig";
 import { updateReport } from "@/api/reports";
 
 interface Props {
