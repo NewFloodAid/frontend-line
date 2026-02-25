@@ -1,21 +1,25 @@
 "use client";
+
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { TransitionStartFunction, useState } from "react";
+import { TransitionStartFunction, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+
 import { Report } from "@/types/Report";
 import { deleteReport } from "@/api/reports";
-import { useRouter } from "next/navigation";
+import { StatusMappingToTH } from "@/constants/report_status";
+
 import ConfirmModal from "./ConfirmModal";
-import Image from "next/image";
 import SentComponent from "./reportCardSection/Sent";
 import SuccessComponent from "./reportCardSection/Success";
-import { StatusMappingToTH } from "@/constants/report_status";
 import ReportCardMapComponent from "./Map";
 
 dayjs.extend(buddhistEra);
+dayjs.locale("th");
 
-const StatusMappingENGToTextColor: { [key: string]: string } = {
+const STATUS_COLOR: Record<string, string> = {
   PENDING: "text-red-500",
   PROCESS: "text-orange-500",
   SENT: "text-blue-500",
@@ -30,16 +34,19 @@ interface Props {
   setExpandedCardId: (id: number | undefined) => void;
 }
 
-//day.js
-function DateTH(dateStr: string) {
-  dayjs.locale("th");
-  const dt = dayjs(dateStr);
-  const date = dt.format("D/MM/BB");
-  const time = dt.format("HH:mm");
-  return { date, time };
-}
+/* ---------------- utils ---------------- */
 
-function ReportCard({
+const formatThaiDate = (dateStr: string) => {
+  const dt = dayjs(dateStr);
+  return {
+    date: dt.format("D/MM/BB"),
+    time: dt.format("HH:mm"),
+  };
+};
+
+/* ---------------- component ---------------- */
+
+export default function ReportCard({
   report,
   startTransition,
   fetchReports,
@@ -49,38 +56,49 @@ function ReportCard({
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
-  function handleDelete(id: number) {
+  /* ---------- memoized values ---------- */
+
+  const { date, time } = useMemo(
+    () => formatThaiDate(report.createdAt),
+    [report.createdAt],
+  );
+
+  const firstAssistance = useMemo(
+    () =>
+      report.reportAssistances.find((assistance) => assistance.quantity > 0)
+        ?.assistanceType.name,
+    [report.reportAssistances],
+  );
+
+  const status = report.reportStatus.status;
+
+  /* ---------- handlers ---------- */
+
+  const handleDelete = async (id: number) => {
     startTransition(async () => {
       await deleteReport(id);
       await fetchReports();
     });
     setShowModal(false);
-  }
+  };
 
-  function handlecardExpand(id: number) {
-    if (isExpanded) {
-      setExpandedCardId(undefined);
-    } else {
-      setExpandedCardId(id);
-    }
-  }
+  const toggleExpand = () => {
+    setExpandedCardId(isExpanded ? undefined : report.id);
+  };
 
-  function closeModal() {
-    setShowModal(false);
-  }
+  /* ---------- render ---------- */
 
   return (
     <>
-      <div className="flex flex-row">
-        {/*วันเวลาส่งคำขอ*/}
-        <div className="flex flex-row">
-          <label className="mr-2">{DateTH(report.createdAt).date}</label>
-          <label>เวลา {DateTH(report.createdAt).time} น.</label>
+      {/* วันที่ + ปุ่ม */}
+      <div className="flex justify-between">
+        <div className="flex gap-2">
+          <span>{date}</span>
+          <span>เวลา {time} น.</span>
         </div>
 
-        {report.reportStatus.status == "PENDING" && (
-          <div className="ml-auto flex gap-x-3">
-            {/*ปุ่มแก้ไข*/}
+        {status === "PENDING" && (
+          <div className="flex gap-3">
             <button onClick={() => router.push(`/form?id=${report.id}`)}>
               <Image
                 src="/buttons/edit-button.svg"
@@ -89,7 +107,7 @@ function ReportCard({
                 height={30}
               />
             </button>
-            {/*ปุ่มลบ*/}
+
             <button onClick={() => setShowModal(true)}>
               <Image
                 src="/buttons/bin.png"
@@ -102,46 +120,37 @@ function ReportCard({
         )}
       </div>
 
-      <div className="flex flex-row mb-5">
-        <div className="flex flex-row">
-          <label className="mr-2">ผู้แจ้ง</label>
-          <label>
-            {report.firstName} {report.lastName}
-          </label>
-        </div>
+      {/* ผู้แจ้ง */}
+      <div className="mt-3 mb-5">
+        <span className="mr-2">ผู้แจ้ง</span>
+        <span>
+          {report.firstName} {report.lastName}
+        </span>
       </div>
 
-      {/*รายละเอียดสถานการณ์*/}
-      <div className="flex flex-row mb-3">
-        <div>
-          <h3 className="mb-3">
-            {
-              report.reportAssistances.find(
-                (assistance) => assistance.quantity > 0
-              )?.assistanceType.name
-            }
-          </h3>
-          <label className="ml-3">{report.additionalDetail}</label>
-        </div>
+      {/* รายละเอียด */}
+      <div className="mb-4">
+        <h3 className="mb-2 font-semibold">{firstAssistance}</h3>
+        <p className="ml-3">{report.additionalDetail}</p>
       </div>
 
-      {/*รูป และ แผนที่*/}
-      <div className="flex flex-row gap-2 justify-start mb-3 overflow-x-auto flex-nowrap scroll-smooth">
+      {/* รูป + แผนที่ */}
+      <div className="flex gap-2 overflow-x-auto">
         <ReportCardMapComponent report={report} />
+
         {report.images
           .filter((image) => image.phase === "BEFORE")
-          .map((image, index) => {
-            return (
-              <img
-                src={image.url}
-                key={index}
-                alt="report image"
-                className="h-40 rounded-md shadow-lg"
-              />
-            );
-          })}
+          .map((image) => (
+            <img
+              key={image.id}
+              src={image.url}
+              alt="report"
+              className="h-40 rounded-md shadow-lg"
+            />
+          ))}
       </div>
 
+      {/* Expanded section */}
       {isExpanded && (
         <>
           <SentComponent
@@ -149,52 +158,48 @@ function ReportCard({
             fetchReports={fetchReports}
             startTransition={startTransition}
           />
-
           <SuccessComponent report={report} />
         </>
       )}
 
-      <div className="flex items-center mt-5 pt-2 border-t border-gray-300">
-        {report.reportStatus.status === "SENT" && (
+      {/* Footer */}
+      <div className="flex items-center mt-5 pt-2 border-t">
+        {status === "SENT" && (
           <button
-            onClick={() => handlecardExpand(report.id)}
-            className={`py-3 px-4 rounded-lg text-base transition text-white
-          ${
-            isExpanded
-              ? "bg-red-400 hover:bg-red-500"
-              : "bg-green-500 hover:bg-green-600"
-          }
-        `}
+            onClick={toggleExpand}
+            className={`px-4 py-3 rounded-lg text-white transition
+              ${
+                isExpanded
+                  ? "bg-red-400 hover:bg-red-500"
+                  : "bg-green-500 hover:bg-green-600"
+              }
+            `}
           >
             {isExpanded ? "ยกเลิก" : "อัพเดต"}
           </button>
         )}
-        {report.reportStatus.status === "SUCCESS" && (
+
+        {status === "SUCCESS" && (
           <button
-            onClick={() => handlecardExpand(report.id)}
-            className="semi-bold text-gray-700 underline"
+            onClick={toggleExpand}
+            className="text-gray-700 underline font-semibold"
           >
             {isExpanded ? "ซ่อนรายละเอียด" : "แสดงรายละเอียด"}
           </button>
         )}
-        <label
-          className={`ml-auto font-semibold ${
-            StatusMappingENGToTextColor[report.reportStatus.status]
-          }`}
-        >
-          {StatusMappingToTH[report.reportStatus.status]}
-        </label>
+
+        <span className={`ml-auto font-semibold ${STATUS_COLOR[status]}`}>
+          {StatusMappingToTH[status]}
+        </span>
       </div>
 
       {showModal && (
         <ConfirmModal
           id={report.id}
           handleDelete={handleDelete}
-          handleCancel={closeModal}
+          handleCancel={() => setShowModal(false)}
         />
       )}
     </>
   );
 }
-
-export default ReportCard;
