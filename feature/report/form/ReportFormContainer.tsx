@@ -4,7 +4,6 @@ import ReportFormUI from "./ReportFormUI";
 import { useReportForm } from "@/feature/report/form/hooks/useReportForm";
 import ReportNotFound from "./ReportNotFound";
 import UpdateReport from "./UpdateReport";
-import { report } from "process";
 
 export default function ReportFormContainer() {
   const form = useReportForm();
