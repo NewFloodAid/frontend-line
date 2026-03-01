@@ -23,11 +23,11 @@ interface Props {
   /** ข้อมูล report ทั้งหมด */
   report: Report;
 
-  /** สถานะการขยาย */
+  /** สถานะการ expand */
   isExpanded: boolean;
 
-  /** ฟังก์ชันสลับการขยาย */
-  onToggleExpand: () => void;
+  /** ฟังก์ชันสลับการขยาย (optional หากไม่ส่งมาจะไม่แสดงปุ่ม expand) */
+  onToggleExpand?: () => void;
 
   /** ฟังก์ชันลบ (optional หากไม่ส่งมาจะไม่แสดงปุ่มลบ) */
   onDelete?: (id: number) => void;
@@ -106,10 +106,6 @@ export default function ReportCard({
     setShowModal(false);
   };
 
-  const toggleExpand = () => {
-    onToggleExpand();
-  };
-
   return (
     <>
       {/* ================= ส่วน Header ================= */}
@@ -141,7 +137,7 @@ export default function ReportCard({
       <ReportCardFooter
         status={status}
         isExpanded={isExpanded}
-        toggleExpand={toggleExpand}
+        toggleExpand={onToggleExpand}
         statusText={StatusMappingToTH[status]}
       />
 

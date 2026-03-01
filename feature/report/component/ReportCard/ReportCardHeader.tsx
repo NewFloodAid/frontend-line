@@ -37,14 +37,16 @@ export default function ReportCardHeader({
               />
             </button>
 
-            <button onClick={onDelete}>
-              <Image
-                src="/buttons/bin.png"
-                alt="delete"
-                width={25}
-                height={25}
-              />
-            </button>
+            {onDelete && (
+              <button onClick={onDelete}>
+                <Image
+                  src="/buttons/bin.png"
+                  alt="delete"
+                  width={25}
+                  height={25}
+                />
+              </button>
+            )}
           </div>
         )}
       </div>

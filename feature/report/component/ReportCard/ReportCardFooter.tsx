@@ -1,7 +1,7 @@
 interface Props {
   status: string;
   isExpanded: boolean;
-  toggleExpand: () => void;
+  toggleExpand?: () => void;
   statusText: string;
 }
 
@@ -20,7 +20,7 @@ export default function ReportCardFooter({
 }: Props) {
   return (
     <div className="flex items-center mt-5 pt-2 border-t">
-      {status === "SENT" && (
+      {status === "SENT" && toggleExpand && (
         <button
           onClick={toggleExpand}
           className={`px-4 py-3 rounded-lg text-white transition
@@ -34,7 +34,7 @@ export default function ReportCardFooter({
         </button>
       )}
 
-      {status === "SUCCESS" && (
+      {status === "SUCCESS" && toggleExpand && (
         <button
           onClick={toggleExpand}
           className="text-gray-700 underline font-semibold"
