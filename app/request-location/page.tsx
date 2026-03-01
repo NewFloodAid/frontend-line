@@ -49,9 +49,9 @@ const Map = () => {
   const [loading, setLoading] = useState(true);
   const [center, setCenter] = useState(defaultMapCenter);
   const [reports, setReports] = useState<Report[]>([]);
-  const [showAllPin, setShowAllPin] = useState(false);
+  const [showAllMarker, setShowAllMarker] = useState(false);
 
-  const filteredReports = showAllPin
+  const filteredReports = showAllMarker
     ? reports
     : reports.filter((report) => report.userId === uid);
 
@@ -120,7 +120,7 @@ const Map = () => {
       >
         {/* render หมุดตาม reports ที่มี */}
         {filteredReports.map((report) => {
-          const pinColor =
+          const MarkerColor =
             StatusMappingENGToPinColor[report.reportStatus.status];
 
           return (
@@ -131,8 +131,8 @@ const Map = () => {
                 lng: report.location.longitude,
               }}
               icon={{
-                url: `/pins/${pinColor}-pin.png`, // รูปภาพหมุด (เช่น yellow-pin.png)
-                scaledSize: new window.google.maps.Size(37, 53),
+                url: `/markers/marker-${MarkerColor}.png`,
+                scaledSize: new window.google.maps.Size(50, 50),
               }}
               onClick={() => {
                 router.push(`/form?id=${report.id}`);
@@ -172,7 +172,12 @@ const Map = () => {
       {/* หมุดกลางจอ */}
       {!loading && !isPending && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 pointer-events-none">
-          <Image src="/pins/red-pin.png" alt="Pin" width={37} height={53} />
+          <Image
+            src="/markers/marker-pink.png"
+            alt="Marker"
+            width={50}
+            height={50}
+          />
         </div>
       )}
 
@@ -186,8 +191,8 @@ const Map = () => {
       <div className="absolute top-0 right-0 m-3 p-3 z-10 bg-white rounded-md">
         <ToggleSwitch
           label="แสดงหมุดของคนอื่น"
-          checked={showAllPin}
-          onChange={setShowAllPin}
+          checked={showAllMarker}
+          onChange={setShowAllMarker}
         />
       </div>
     </div>
