@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getReports } from "@/api/reports";
 import { Report } from "@/types/Report";
-import ReportCard from "@/feature/report/component/ReportCard/ReportCard";
-import { useReportCard } from "@/feature/report/component/ReportCard/hooks/useReportCard";
+import ReportCard from "@/feature/report/component/card/ReportCard";
+import { useReportCard } from "@/feature/report/component/card/hooks/useReportCard";
 
 export default function History() {
   const router = useRouter();
