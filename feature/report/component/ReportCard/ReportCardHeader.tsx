@@ -7,7 +7,7 @@ interface Props {
   time: string;
   status: string;
   onEdit: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }
 
 export default function ReportCardHeader({

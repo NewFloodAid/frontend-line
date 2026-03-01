@@ -15,15 +15,14 @@ import { updateReport } from "@/api/reports";
 
 interface Props {
   report: Report;
-  fetchReports: () => Promise<void>;
-  startTransition: TransitionStartFunction;
+  onSubmit: (data: {
+    report: Report;
+    details: string;
+    images: File[];
+  }) => Promise<void>;
 }
 
-const SentComponent: React.FC<Props> = ({
-  report,
-  fetchReports,
-  startTransition,
-}) => {
+const SentComponent: React.FC<Props> = ({ report, onSubmit }) => {
   const [details, setDetails] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [images, setImages] = useState<File[]>([]);
@@ -69,18 +68,17 @@ const SentComponent: React.FC<Props> = ({
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   }
 
-  function handleUpdateReport() {
-    startTransition(async () => {
-      // 1. update report
-      const updatedReport = createUpdatedReport(report, details);
-      await updateReport(updatedReport, images);
-
-      // 2. update status
-      const updatedStatusReport = createUpdatedStatusReport(updatedReport);
-      await updateReport(updatedStatusReport);
-
-      fetchReports();
+  async function handleUpdateReport() {
+    await onSubmit({
+      report,
+      details,
+      images,
     });
+
+    // reset form หลัง submit
+    setDetails("");
+    setImages([]);
+    setIsConfirmed(false);
   }
 
   return (

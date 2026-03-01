@@ -1,40 +1,48 @@
 "use client";
-import { useEffect, useState, useTransition } from "react";
+
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getReports } from "@/api/reports";
 import { Report } from "@/types/Report";
-import ReportCard from "@/feature/report/component/ReportCard/index";
+import ReportCard from "@/feature/report/component/ReportCard/ReportCard";
+import { useReportCard } from "@/feature/report/component/ReportCard/hooks/useReportCard";
 
 function Community() {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [reports, setReports] = useState<Report[]>([]);
-  const [expandedCardId, setExpandedCardId] = useState<number>();
-
   const [statusFilter, setStatusFilter] = useState<number>(1);
 
   async function fetchReports() {
     const uid = localStorage.getItem("uid");
     if (!uid) {
       router.replace("/");
-    } else {
-      const data = await getReports({ reportStatusId: statusFilter }, uid);
-      setReports(data);
+      return;
     }
+
+    const data = await getReports({ reportStatusId: statusFilter }, uid);
+
+    setReports(data);
   }
 
   useEffect(() => {
-    startTransition(async () => {
-      await fetchReports();
-    });
-    const interval = setInterval(() => fetchReports(), 5000);
+    fetchReports();
+    const interval = setInterval(fetchReports, 5000);
     return () => clearInterval(interval);
   }, [statusFilter]);
 
+  // ✅ ใช้ hook กลางเหมือน History
+  const {
+    handleDelete,
+    handleSentSubmit,
+    isPending,
+    isExpanded,
+    toggleExpand,
+  } = useReportCard(fetchReports);
+
   return (
-    <div className={`${isPending ? "pointer-events-none opacity-50" : ""}`}>
+    <div className={isPending ? "opacity-50 pointer-events-none" : ""}>
       <div className="min-h-screen bg-[#505050]">
-        {/* แถบ filter */}
+        {/* 🔹 Filter */}
         <div className="sticky top-[78px] bg-[#505050] py-3 z-40">
           <div className="flex justify-center">
             <button
@@ -61,7 +69,7 @@ function Community() {
           </div>
         </div>
 
-        {/* Card */}
+        {/* 🔹 Card */}
         <div className="flex flex-col items-center p-3 pt-4">
           {reports.map((report) => (
             <div
@@ -70,10 +78,10 @@ function Community() {
             >
               <ReportCard
                 report={report}
-                startTransition={startTransition}
-                fetchReports={fetchReports}
-                isExpanded={expandedCardId == report.id}
-                setExpandedCardId={setExpandedCardId}
+                isExpanded={isExpanded(report.id)}
+                onToggleExpand={() => toggleExpand(report.id)}
+                onDelete={handleDelete}
+                onSentSubmit={handleSentSubmit}
               />
             </div>
           ))}

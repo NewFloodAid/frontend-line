@@ -103,6 +103,11 @@ export function useReportForm() {
               report.userId == uid
             ) {
               setMode("EDIT");
+            } else if (
+              report.reportStatus.status == "SENT" ||
+              report.reportStatus.status == "SUCCESS"
+            ) {
+              setMode("UPDATE");
             } else {
               setMode("VIEW");
             }
