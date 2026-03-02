@@ -10,7 +10,6 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [currentTitle, setCurrentTitle] = useState<string>("");
 
   // Mapping URL Pathname -> Title
   const pageTitles: Record<string, string> = {
@@ -29,21 +28,9 @@ const Navbar: React.FC = () => {
     return pageTitles[path] || "Page";
   }
 
-  // Set currentTitle ให้ตรงกับหน้าแรกที่โหลด
-  React.useEffect(() => {
-    setCurrentTitle(getPageTitle(pathname));
-  }, [pathname]);
-
   // ฟังก์ชันเปิด/ปิดเมนู
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
-
-    // เปลี่ยน currentTitle เป็น "เมนู" เมื่อเปิดเมนู
-    if (!isMenuOpen) {
-      setCurrentTitle("เมนู");
-    } else {
-      setCurrentTitle(getPageTitle(pathname)); // กลับค่าเดิมเมื่อปิดเมนู
-    }
   };
 
   const back = () => {
@@ -71,9 +58,9 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* title */}
-          <div className="flex-grow text-center">
-            <h1 className="text-white text-base font-medium">{currentTitle}</h1>
-          </div>
+          <h1 className="text-white text-base font-medium">
+            {isMenuOpen ? "เมนู" : getPageTitle(pathname)}
+          </h1>
 
           {/* menu button */}
           <button
