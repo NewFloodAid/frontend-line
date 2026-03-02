@@ -9,7 +9,7 @@ import AdditionalDetailSection from "@/feature/report/form/section/AdditionalDet
 import ImageSection from "@/feature/report/form/section/ImageSection";
 import ErrorMessage from "./component/FormErrorMessage";
 import FormCardLayout from "./FormCardLayout";
-import StatusBadge from "@/feature/report/component/StatusBadge";
+import StatusBadge from "@/feature/report/components/StatusBadge";
 import { FormMode } from "@/types/FormMode";
 import { SubmitSection } from "./section/SubmitSection";
 

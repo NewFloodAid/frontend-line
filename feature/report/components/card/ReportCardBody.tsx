@@ -1,5 +1,5 @@
 import { Report } from "@/types/Report";
-import ReportCardMapComponent from "../component/Map";
+import ReportCardMapComponent from "../Map";
 
 interface Props {
   report: Report;

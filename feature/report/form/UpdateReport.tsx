@@ -1,6 +1,6 @@
 import { Report } from "@/types/Report";
-import { useReportCard } from "../component/card/hooks/useReportCard";
-import ReportCard from "../component/card/ReportCard";
+import { useReportCard } from "../components/card/hooks/useReportCard";
+import ReportCard from "../components/card/ReportCard";
 import FormCardLayout from "./FormCardLayout";
 import { useRouter } from "next/navigation";
 
