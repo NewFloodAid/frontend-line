@@ -1,19 +1,25 @@
 import Image from "next/image";
-import { Report } from "@/types/Report";
 
 interface Props {
-  report: Report;
-  date: string;
-  time: string;
-  status: string;
+  firstName: string;
+  lastName: string;
+
+  reportedAt: string;
+  receivedAt?: string;
+  resolvedAt?: string;
+
+  status: "PENDING" | "PROCESS" | "SENT" | "SUCCESS";
+
   onEdit: () => void;
   onDelete?: () => void;
 }
 
 export default function ReportCardHeader({
-  report,
-  date,
-  time,
+  firstName,
+  lastName,
+  reportedAt,
+  receivedAt,
+  resolvedAt,
   status,
   onEdit,
   onDelete,
@@ -21,13 +27,30 @@ export default function ReportCardHeader({
   return (
     <>
       <div className="flex justify-between">
-        <div className="flex gap-2">
-          <span>{date}</span>
-          <span>เวลา {time} น.</span>
+        <div className="mb-3 text-sm">
+          <div>
+            <span className="mr-2">แจ้งเหตุเมื่อ</span> {reportedAt}
+          </div>
+
+          {receivedAt && (
+            <div>
+              <span className="mr-2">รับเรื่องเมื่อ</span> {receivedAt}
+            </div>
+          )}
+
+          {resolvedAt && (
+            <div>
+              <span className="mr-2">แก้ไขเมื่อ</span> {resolvedAt}
+            </div>
+          )}
+
+          <div className="mt-3">
+            <span className="mr-2">ผู้แจ้ง</span> {firstName} {lastName}
+          </div>
         </div>
 
         {status === "PENDING" && (
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-start">
             <button onClick={onEdit}>
               <Image
                 src="/buttons/edit-button.svg"
@@ -49,13 +72,6 @@ export default function ReportCardHeader({
             )}
           </div>
         )}
-      </div>
-
-      <div className="mt-3 mb-5">
-        <span className="mr-2">ผู้แจ้ง</span>
-        <span>
-          {report.firstName} {report.lastName}
-        </span>
       </div>
     </>
   );

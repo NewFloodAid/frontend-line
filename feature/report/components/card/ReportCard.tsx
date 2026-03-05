@@ -45,10 +45,7 @@ interface Props {
  */
 const formatThaiDate = (dateStr: string) => {
   const dt = dayjs(dateStr);
-  return {
-    date: dt.format("D/MM/BB"),
-    time: dt.format("HH:mm"),
-  };
+  return `${dt.format("D/MM/BB")} เวลา ${dt.format("HH:mm")} น.`;
 };
 
 /**
@@ -80,14 +77,45 @@ export default function ReportCard({
    */
   const [showModal, setShowModal] = useState(false);
 
-  /**
-   * memoize วันที่และเวลา
-   * ป้องกันการคำนวณซ้ำทุกครั้งที่ re-render
-   */
-  const { date, time } = useMemo(
+  const reportedAt = useMemo(
     () => formatThaiDate(report.createdAt),
     [report.createdAt],
   );
+
+  const receivedAt = useMemo(
+    () => (report.updatedAt ? formatThaiDate(report.updatedAt) : undefined),
+    [report.updatedAt],
+  );
+
+  const resolvedAt = useMemo(
+    () => (report.updatedAt ? formatThaiDate(report.updatedAt) : undefined),
+    [report.updatedAt],
+  );
+
+  const status = report.reportStatus.status;
+
+  const timeline = useMemo(() => {
+    switch (status) {
+      case "PENDING":
+      case "PROCESS":
+        return { reportedAt };
+
+      case "SENT":
+        return {
+          reportedAt,
+          receivedAt,
+        };
+
+      case "SUCCESS":
+        return {
+          reportedAt,
+          resolvedAt,
+        };
+
+      default:
+        return { reportedAt };
+    }
+  }, [status, reportedAt, receivedAt, resolvedAt]);
 
   /**
    * ดึงประเภทความช่วยเหลือแรกที่มีจำนวนมากกว่า 0
@@ -97,8 +125,6 @@ export default function ReportCard({
       report.reportAssistances.find((a) => a.quantity > 0)?.assistanceType.name,
     [report.reportAssistances],
   );
-
-  const status = report.reportStatus.status;
 
   const handleDelete = () => {
     if (!onDelete) return;
@@ -110,9 +136,11 @@ export default function ReportCard({
     <>
       {/* ================= ส่วน Header ================= */}
       <ReportCardHeader
-        report={report}
-        date={date}
-        time={time}
+        firstName={report.firstName}
+        lastName={report.lastName}
+        reportedAt={timeline.reportedAt}
+        receivedAt={timeline.receivedAt}
+        resolvedAt={timeline.resolvedAt}
         status={status}
         onEdit={() => router.push(`/form?id=${report.id}`)}
         onDelete={onDelete ? () => setShowModal(true) : undefined}
