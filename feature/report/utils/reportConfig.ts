@@ -1,13 +1,17 @@
-import { Location, ReportFormData } from "@/types/ReportFormData";
+﻿import { Location, ReportFormData } from "@/types/ReportFormData";
 import { getAssistanceTypes } from "@/api/assistanceTypes";
 import { AssistanceTypes } from "@/types/AssistanceTypes";
 import { Report } from "@/types/Report";
+
+function normalizeExtraDetail(value?: string | null): string {
+  return value?.trim() ?? "";
+}
 
 // สร้าง report type สำหรับใช้กับหน้า form
 export async function defaultReportFormData(
   uid: string,
   address: Location,
-  oldReport?: Report
+  oldReport?: Report,
 ): Promise<{ formData: ReportFormData; assistanceTypes: AssistanceTypes[] }> {
   const assistanceTypes = await getAssistanceTypes();
 
@@ -24,6 +28,7 @@ export async function defaultReportFormData(
       assistanceType: { id: type.id },
       quantity: 0,
       isActive: false,
+      extraDetail: "",
     })),
   };
 
@@ -32,9 +37,24 @@ export async function defaultReportFormData(
 
 // เปลี่ยน report type จาก backend ให้ใช้กับหน้า form ได้
 export async function createFormDataFromReport(
-  report: Report
+  report: Report,
 ): Promise<{ formData: ReportFormData; assistanceTypes: AssistanceTypes[] }> {
   const assistanceTypes = await getAssistanceTypes();
+
+  const existingByTypeId = new Map(
+    report.reportAssistances.map((item) => [item.assistanceType.id, item]),
+  );
+
+  const normalizedAssistances = assistanceTypes.map((type) => {
+    const existing = existingByTypeId.get(type.id);
+
+    return {
+      assistanceType: { id: type.id },
+      quantity: existing?.quantity ?? 0,
+      isActive: Boolean(existing?.isActive) || (existing?.quantity ?? 0) > 0,
+      extraDetail: normalizeExtraDetail(existing?.extraDetail),
+    };
+  });
 
   const formData: ReportFormData = {
     userId: report.userId,
@@ -45,17 +65,14 @@ export async function createFormDataFromReport(
     mainPhoneNumber: report.mainPhoneNumber,
     reservePhoneNumber: report.reservePhoneNumber,
     additionalDetail: report.additionalDetail,
-    reportAssistances: report.reportAssistances,
+    reportAssistances: normalizedAssistances,
   };
 
   return { formData, assistanceTypes };
 }
 
 // สร้าง report type ของ report ที่ user แก้ไขใช้ส่งต่อ backend
-export function createEditedReport(
-  formData: ReportFormData,
-  oldReport: Report
-): Report {
+export function createEditedReport(formData: ReportFormData, oldReport: Report): Report {
   return {
     ...oldReport,
     userId: formData.userId,
@@ -67,24 +84,21 @@ export function createEditedReport(
     additionalDetail: formData.additionalDetail,
     reportAssistances: oldReport.reportAssistances.map((reportAssistance) => {
       const formDataAssistance = formData.reportAssistances.find(
-        (formDataAssistance) =>
-          formDataAssistance.assistanceType.id ===
-          reportAssistance.assistanceType.id
+        (item) => item.assistanceType.id === reportAssistance.assistanceType.id,
       );
+
       return {
         ...reportAssistance,
         quantity: formDataAssistance?.quantity ?? 0,
         isActive: formDataAssistance?.isActive ?? false,
+        extraDetail: normalizeExtraDetail(formDataAssistance?.extraDetail),
       };
     }),
   };
 }
 
 // สร้าง report type ของ report ที่ user อัพเดทความคืบหน้าของคำขอใช้ส่งต่อ backend
-export function createUpdatedReport(
-  oldReport: Report,
-  details: string
-): Report {
+export function createUpdatedReport(oldReport: Report, details: string): Report {
   return {
     ...oldReport,
     afterAdditionalDetail: details,

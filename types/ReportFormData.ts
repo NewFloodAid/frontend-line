@@ -16,6 +16,7 @@ interface ReportAssistance {
   assistanceType: AssistanceType;
   quantity: number;
   isActive: boolean;
+  extraDetail?: string | null;
 }
 
 export interface ReportFormData {

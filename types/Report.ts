@@ -19,7 +19,10 @@ interface ReportStatus {
 interface AssistanceType {
   id: number;
   name: string;
-  unit: string;
+  isActive?: boolean;
+  extraFieldLabel?: string | null;
+  extraFieldPlaceholder?: string | null;
+  extraFieldRequired?: boolean;
 }
 
 interface ReportAssistance {
@@ -27,6 +30,7 @@ interface ReportAssistance {
   assistanceType: AssistanceType;
   quantity: number;
   isActive: boolean;
+  extraDetail?: string | null;
   reportId: number;
 }
 
