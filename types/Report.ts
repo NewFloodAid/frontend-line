@@ -34,17 +34,10 @@ interface ReportAssistance {
   reportId: number;
 }
 
-interface ImageCategory {
-  id: number;
-  name: string;
-  fileLimit: number;
-}
-
 export interface ReportImage {
   id: number;
   name: string;
   phase: "BEFORE" | "AFTER";
-  imageCategory: ImageCategory;
   url: string;
   reportId: number;
 }
