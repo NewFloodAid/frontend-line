@@ -21,22 +21,26 @@ export default function AssistancesSection({ assistanceTypes }: AssistanceSectio
   const assistances = watch("reportAssistances") ?? [];
 
   const handleCheck = (index: number, checked: boolean) => {
-    setValue(`reportAssistances.${index}.isActive`, checked, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+    fields.forEach((_, currentIndex) => {
+      const isCurrentSelected = checked && currentIndex === index;
 
-    setValue(`reportAssistances.${index}.quantity`, checked ? 1 : 0, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-
-    if (!checked) {
-      setValue(`reportAssistances.${index}.extraDetail`, "", {
+      setValue(`reportAssistances.${currentIndex}.isActive`, isCurrentSelected, {
         shouldDirty: true,
         shouldValidate: true,
       });
-    }
+
+      setValue(`reportAssistances.${currentIndex}.quantity`, isCurrentSelected ? 1 : 0, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+
+      if (!isCurrentSelected) {
+        setValue(`reportAssistances.${currentIndex}.extraDetail`, "", {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+    });
   };
 
   return (
