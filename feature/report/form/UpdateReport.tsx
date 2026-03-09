@@ -2,22 +2,34 @@ import { Report } from "@/types/Report";
 import { useReportCard } from "../components/card/hooks/useReportCard";
 import ReportCard from "../components/card/ReportCard";
 import FormCardLayout from "./FormCardLayout";
-import { useRouter } from "next/navigation";
+import { getReportById } from "@/api/reports";
+import { useEffect, useState } from "react";
 
 interface Props {
   report: Report;
 }
 
 export default function UpdateReport({ report }: Props) {
-  const router = useRouter();
+  const [currentReport, setCurrentReport] = useState(report);
+
+  useEffect(() => {
+    setCurrentReport(report);
+  }, [report]);
+
   const reportCard = useReportCard(async () => {
-    router.refresh();
+    const uid = typeof window !== "undefined" ? localStorage.getItem("uid") : null;
+    if (!uid) return;
+
+    const latestReport = await getReportById(report.id, uid);
+    if (latestReport) {
+      setCurrentReport(latestReport);
+    }
   });
 
   return (
     <FormCardLayout isPending={reportCard.isPending}>
       <ReportCard
-        report={report}
+        report={currentReport}
         isExpanded={true}
         onSentSubmit={reportCard.handleSentSubmit}
       />

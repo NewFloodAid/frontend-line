@@ -1,51 +1,27 @@
 "use client";
+
 import { Report } from "@/types/Report";
-import { GoogleMap, Marker } from "@react-google-maps/api";
 import React from "react";
 
 interface Props {
   report: Report;
 }
 
-const defaultMapContainerStyle = {
-  width: "100%",
-  height: "100%",
-};
-
-const defaultMapZoom = 16;
-
-const defaultMapOptions = {
-  disableDefaultUI: true,
-  draggable: false,
-  scrollwheel: false,
-  disableDoubleClickZoom: true,
-  keyboardShortcuts: false,
-  clickableIcons: false,
-  gestureHandling: "none",
-  styles: [
-    {
-      featureType: "poi",
-      elementType: "all",
-      stylers: [{ visibility: "off" }],
-    },
-  ],
-};
-
 const ReportCardMapComponent: React.FC<Props> = ({ report }) => {
-  const center = {
-    lat: report.location.latitude,
-    lng: report.location.longitude,
-  };
+  const lat = report.location.latitude;
+  const lng = report.location.longitude;
+  const delta = 0.0018;
+  const bbox = `${lng - delta}%2C${lat - delta}%2C${lng + delta}%2C${lat + delta}`;
+  const embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
 
   return (
-    <GoogleMap
-      mapContainerStyle={defaultMapContainerStyle}
-      center={center}
-      zoom={defaultMapZoom}
-      options={defaultMapOptions}
-    >
-      <Marker position={center} />
-    </GoogleMap>
+    <iframe
+      title={`report-map-${report.id}`}
+      src={embedUrl}
+      className="h-full w-full border-0"
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+    />
   );
 };
 

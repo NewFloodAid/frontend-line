@@ -2,7 +2,6 @@ import { ReportImage } from "@/types/Report";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
-import heic2any from "heic2any";
 import { FormMode } from "@/types/FormMode";
 
 interface ImageSectionProps {
@@ -29,6 +28,10 @@ export default function ImageSection({
 
   const [compressing, setCompressing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const heicConverterRef = useRef<
+    | ((options: { blob: Blob; toType: string }) => Promise<Blob | Blob[]>)
+    | null
+  >(null);
 
   // render รูป
   useEffect(() => {
@@ -45,6 +48,20 @@ export default function ImageSection({
   }, [initialImages]);
 
   // แปลงไฟล์ HEIC ของ iphone
+  const getHeicConverter = async () => {
+    if (heicConverterRef.current) return heicConverterRef.current;
+
+    const module = await import("heic2any");
+    const converter =
+      (module.default as (options: {
+        blob: Blob;
+        toType: string;
+      }) => Promise<Blob | Blob[]>) ?? null;
+
+    heicConverterRef.current = converter;
+    return converter;
+  };
+
   const convertHeicToJpeg = async (file: File): Promise<File> => {
     const isHeic =
       file.type === "image/heic" ||
@@ -53,10 +70,21 @@ export default function ImageSection({
 
     if (!isHeic) return file;
 
-    const blob = await heic2any({
+    if (typeof window === "undefined") {
+      return file;
+    }
+
+    const heic2any = await getHeicConverter();
+    if (!heic2any) {
+      return file;
+    }
+
+    const converted = await heic2any({
       blob: file,
       toType: "image/jpeg",
     });
+
+    const blob = Array.isArray(converted) ? converted[0] : converted;
 
     return new File([blob as Blob], file.name.replace(/\.heic$/i, ".jpg"), {
       type: "image/jpeg",
@@ -209,3 +237,4 @@ export default function ImageSection({
     </section>
   );
 }
+

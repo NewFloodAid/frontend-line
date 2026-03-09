@@ -19,6 +19,13 @@ const StatusMappingENGToPinColor: { [key: string]: string } = {
   SUCCESS: "green",
 };
 
+const StatusMappingENGToColor: { [key: string]: string } = {
+  PENDING: "#ff0000ff",
+  PROCESS: "#FFA500",
+  SENT: "#0088ffff",
+  SUCCESS: "#00ac28ff",
+};
+
 const StatusMappingToENG: { [key: string]: string } = {
   ยังไม่ได้รับเรื่อง: "PENDING",
   รวบรวมข้อมูล: "PROCESS",
@@ -31,4 +38,5 @@ export {
   StatusMappingToENG,
   StatusMappingENGToTextColor,
   StatusMappingENGToPinColor,
+  StatusMappingENGToColor,
 };

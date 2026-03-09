@@ -1,15 +1,9 @@
 import axios from "axios";
 import { Location } from "@/types/ReportFormData";
 
-interface AddressComponent {
-  long_name: string;
-  short_name: string;
-  types: string[];
-}
-
 const getAddressFromLatLng = async (
   lat: string | null,
-  lng: string | null
+  lng: string | null,
 ): Promise<Location> => {
   if (!lat || !lng) {
     throw new Error("Latitude and Longitude are required");
@@ -18,52 +12,54 @@ const getAddressFromLatLng = async (
   const latitude = Number(lat);
   const longitude = Number(lng);
 
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=th`;
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(
+    lat,
+  )}&lon=${encodeURIComponent(lng)}&addressdetails=1&accept-language=th`;
 
   try {
-    const response = await axios.get(url);
-    const result = response.data.results[0];
+    const response = await axios.get(url, {
+      headers: {
+        "Accept-Language": "th",
+      },
+    });
 
-    if (result) {
-      const address = result.formatted_address;
-      const addressComponents: AddressComponent[] = result.address_components;
-
-      const subDistrict =
-        addressComponents
-          .find(
-            (component) =>
-              component.types.includes("locality") ||
-              component.types.includes("sublocality")
-          )
-          ?.long_name.replace(/^ตำบล\s*/, "") || "";
-      const district =
-        addressComponents
-          .find((component) =>
-            component.types.includes("administrative_area_level_2")
-          )
-          ?.long_name.replace(/^อำเภอ\s*/, "") || "";
-      const province =
-        addressComponents.find((component) =>
-          component.types.includes("administrative_area_level_1")
-        )?.long_name || "";
-      const postalCode =
-        addressComponents.find((component) =>
-          component.types.includes("postal_code")
-        )?.long_name || "";
-
-      return {
-        latitude,
-        longitude,
-        address,
-        subDistrict,
-        district,
-        province,
-        postalCode,
-      };
-    } else {
+    const result = response.data;
+    if (!result?.address) {
       throw new Error("No address found for the given coordinates.");
     }
+
+    const address = result.display_name ?? "";
+    const addressObject = result.address as Record<string, string | undefined>;
+
+    const subDistrict =
+      addressObject.suburb ??
+      addressObject.city_district ??
+      addressObject.neighbourhood ??
+      addressObject.quarter ??
+      addressObject.village ??
+      addressObject.hamlet ??
+      "";
+
+    const district =
+      addressObject.county ??
+      addressObject.district ??
+      addressObject.city ??
+      addressObject.town ??
+      addressObject.municipality ??
+      "";
+
+    const province = addressObject.state ?? addressObject.region ?? "";
+    const postalCode = addressObject.postcode ?? "";
+
+    return {
+      latitude,
+      longitude,
+      address,
+      subDistrict,
+      district,
+      province,
+      postalCode,
+    };
   } catch (error) {
     console.error("Error fetching address:", error);
     throw error;

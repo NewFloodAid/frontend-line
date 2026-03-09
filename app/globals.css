@@ -78,3 +78,16 @@ main {
 .loading-label {
   @apply text-gray-600 text-lg animate-pulse;
 }
+
+
+/* Leaflet stacking */
+.leaflet-container {
+  z-index: 1;
+}
+
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 10;
+}
+

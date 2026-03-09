@@ -7,7 +7,8 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   (request) => {
-    const jwtToken = localStorage.getItem("jwtToken");
+    const jwtToken =
+      typeof window !== "undefined" ? localStorage.getItem("jwtToken") : null;
 
     if (request.url?.includes("/reports")) {
       request.headers.Authorization = `Bearer ${jwtToken}`;

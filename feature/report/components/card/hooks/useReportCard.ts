@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Report } from "@/types/Report";
 import {
   createUpdatedReport,
@@ -32,7 +32,7 @@ interface SentSubmitParams {
  * @param refresh optional function สำหรับ refresh ข้อมูลหลัง mutation
  */
 export function useReportCard(refresh?: () => Promise<void>) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   /**
    * เก็บ id ของ card ที่กำลัง expand
@@ -58,10 +58,13 @@ export function useReportCard(refresh?: () => Promise<void>) {
    * - ทำงานภายใน startTransition เพื่อลดผลกระทบต่อ UX
    */
   const handleDelete = async (id: number) => {
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       await deleteReport(id);
       if (refresh) await refresh();
-    });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   /**
@@ -80,7 +83,8 @@ export function useReportCard(refresh?: () => Promise<void>) {
     details,
     images,
   }: SentSubmitParams) => {
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       const updatedReport = createUpdatedReport(report, details);
       await updateReport(updatedReport, images);
 
@@ -88,7 +92,9 @@ export function useReportCard(refresh?: () => Promise<void>) {
       await updateReport(updatedStatusReport);
 
       if (refresh) await refresh();
-    });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return {
