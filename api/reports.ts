@@ -2,6 +2,8 @@ import axiosClient from "@/libs/axios";
 import { GetReportsQueryParams, Report } from "@/types/Report";
 import { ReportFormData } from "@/types/ReportFormData";
 
+const REPORT_UPLOAD_TIMEOUT_MS = 120000;
+
 /**
  * ดึงข้อมูลรายงาน (Report) จาก backend ตามเงื่อนไขที่กำหนด
  *
@@ -58,7 +60,9 @@ async function createReport(report: ReportFormData, images: File[]) {
   });
 
   try {
-    const res = await axiosClient.post("/reports", formData);
+    const res = await axiosClient.post("/reports", formData, {
+      timeout: REPORT_UPLOAD_TIMEOUT_MS,
+    });
     return res.data;
   } catch (err) {
     console.error("Create report failed:", err);
@@ -83,7 +87,9 @@ async function updateReport(report: ReportFormData, images?: File[]) {
   });
 
   try {
-    const res = await axiosClient.put("/reports", formData);
+    const res = await axiosClient.put("/reports", formData, {
+      timeout: REPORT_UPLOAD_TIMEOUT_MS,
+    });
     return res.data;
   } catch (err) {
     console.error("Update report failed:", err);

@@ -86,10 +86,8 @@ export function useReportCard(refresh?: () => Promise<void>) {
     setIsPending(true);
     try {
       const updatedReport = createUpdatedReport(report, details);
-      await updateReport(updatedReport, images);
-
       const updatedStatusReport = createUpdatedStatusReport(updatedReport);
-      await updateReport(updatedStatusReport);
+      await updateReport(updatedStatusReport, images);
 
       if (refresh) await refresh();
     } finally {
