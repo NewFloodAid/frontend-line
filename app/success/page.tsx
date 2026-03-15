@@ -19,7 +19,7 @@ const Success = () => {
       </label>
       <Link href={"/request-location"}>
         <button className="mt-4 px-6 py-2 border-2 border-blue-400 font-bold text-blue-400 rounded-lg hover:bg-blue-400 hover:text-white transition-all">
-          ขอความช่วยเหลือถัดไป
+          แจ้งเรื่องถัดไป
         </button>
       </Link>
       <Link href={"/history"}>
