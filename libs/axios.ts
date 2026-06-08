@@ -10,12 +10,12 @@ axiosClient.interceptors.request.use(
     const jwtToken =
       typeof window !== "undefined" ? localStorage.getItem("jwtToken") : null;
 
-    if (request.url?.includes("/reports")) {
+    // Send auth headers for all API requests (endpoints are now protected)
+    if (jwtToken) {
       request.headers.Authorization = `Bearer ${jwtToken}`;
-      request.headers.set("X-Source-App", "LIFF");
     }
+    request.headers.set("X-Source-App", "LIFF");
 
-    // console.log(request);
     return request;
   },
 

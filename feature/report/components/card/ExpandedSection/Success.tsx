@@ -1,5 +1,6 @@
 "use client";
 import { Report } from "@/types/Report";
+import Image from "next/image";
 
 interface Props {
   report: Report;
@@ -26,12 +27,15 @@ const SuccessComponent: React.FC<Props> = ({ report }) => {
             {afterImages.length > 0 && (
               <div className="flex flex-row gap-2 justify-start mb-3 overflow-x-auto flex-nowrap scroll-smooth">
                 {afterImages.map((image, idx) => (
-                  <img
-                    key={idx}
-                    src={image.url}
-                    alt={`Report Image ${idx + 1}`}
-                    className="h-32 rounded-md shadow-lg"
-                  />
+                  <div key={idx} className="relative h-32 w-32 rounded-md shadow-lg overflow-hidden shrink-0">
+                    <Image
+                      src={image.url}
+                      alt={`Report Image ${idx + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 33vw, 25vw"
+                    />
+                  </div>
                 ))}
               </div>
             )}

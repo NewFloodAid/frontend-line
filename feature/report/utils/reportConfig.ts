@@ -1,4 +1,4 @@
-﻿import { Location, ReportFormData } from "@/types/ReportFormData";
+import { Location, ReportFormData } from "@/types/ReportFormData";
 import { getAssistanceTypes } from "@/api/assistanceTypes";
 import { AssistanceTypes } from "@/types/AssistanceTypes";
 import { Report } from "@/types/Report";
@@ -13,7 +13,7 @@ export async function defaultReportFormData(
   address: Location,
   oldReport?: Report,
 ): Promise<{ formData: ReportFormData; assistanceTypes: AssistanceTypes[] }> {
-  const assistanceTypes = await getAssistanceTypes();
+  const assistanceTypes = await getAssistanceTypes(address.district);
 
   const formData: ReportFormData = {
     userId: uid,
@@ -39,7 +39,7 @@ export async function defaultReportFormData(
 export async function createFormDataFromReport(
   report: Report,
 ): Promise<{ formData: ReportFormData; assistanceTypes: AssistanceTypes[] }> {
-  const assistanceTypes = await getAssistanceTypes();
+  const assistanceTypes = await getAssistanceTypes(report.location?.district);
 
   const existingByTypeId = new Map(
     report.reportAssistances.map((item) => [item.assistanceType.id, item]),

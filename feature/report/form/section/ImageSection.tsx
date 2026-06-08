@@ -192,9 +192,9 @@ export default function ImageSection({
         {imageUrls.map((url, i) => (
           <div
             key={"old-" + i}
-            className="relative border rounded overflow-hidden mb-3"
+            className="relative w-full aspect-[4/3] border rounded overflow-hidden mb-3"
           >
-            <img src={url} alt={`old-${i}`} className="w-full object-cover" />
+            <Image src={url} alt={`old-${i}`} fill className="object-cover" />
             {mode !== "VIEW" && (
               <button
                 type="button"
@@ -216,9 +216,9 @@ export default function ImageSection({
         {newImagePreviews.map((src, i) => (
           <div
             key={"new-" + i}
-            className="relative border rounded overflow-hidden mb-3"
+            className="relative w-full aspect-[4/3] border rounded overflow-hidden mb-3"
           >
-            <img src={src} alt={`new-${i}`} className="w-full object-cover" />
+            <Image src={src} alt={`new-${i}`} fill unoptimized className="object-cover" />
             <button
               type="button"
               onClick={() => handleRemoveNewImage(i)}

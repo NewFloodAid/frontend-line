@@ -1,5 +1,6 @@
 import { Report } from "@/types/Report";
 import ReportCardMapComponent from "../Map";
+import Image from "next/image";
 
 interface Props {
   report: Report;
@@ -41,12 +42,15 @@ export default function ReportCardBody({ report, firstAssistance }: Props) {
         {report.images
           .filter((image) => image.phase === "BEFORE")
           .map((image) => (
-            <img
-              key={image.id}
-              src={image.url}
-              alt="report"
-              className="h-40 rounded-md shadow-lg"
-            />
+            <div key={image.id} className="relative h-40 w-40 rounded-md shadow-lg overflow-hidden shrink-0">
+              <Image
+                src={image.url}
+                alt="report"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 50vw, 33vw"
+              />
+            </div>
           ))}
       </div>
     </>

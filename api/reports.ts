@@ -53,11 +53,12 @@ async function getReportById(id: string | number, uid?: string) {
  */
 async function createReport(report: ReportFormData, images: File[]) {
   const formData = new FormData();
-  formData.append("report", JSON.stringify(report));
-
-  images.forEach((image) => {
-    formData.append("files", image);
-  });
+  formData.append("report", new Blob([JSON.stringify(report)], { type: "application/json" }));
+  if (images.length > 0) {
+    for (const image of images) {
+      formData.append("files", image);
+    }
+  }
 
   try {
     const res = await axiosClient.post("/reports", formData, {
@@ -80,11 +81,12 @@ async function createReport(report: ReportFormData, images: File[]) {
  */
 async function updateReport(report: ReportFormData, images?: File[]) {
   const formData = new FormData();
-  formData.append("report", JSON.stringify(report));
-
-  images?.forEach((image) => {
-    formData.append("files", image);
-  });
+  formData.append("report", new Blob([JSON.stringify(report)], { type: "application/json" }));
+  if (images && images.length > 0) {
+    for (const image of images) {
+      formData.append("files", image);
+    }
+  }
 
   try {
     const res = await axiosClient.put("/reports", formData, {

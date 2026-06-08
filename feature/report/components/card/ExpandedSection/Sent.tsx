@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { Report } from "@/types/Report";
@@ -182,7 +182,7 @@ const SentComponent: React.FC<Props> = ({ report, onSubmit }) => {
             key={`new-${i}`}
             className="relative h-32 border rounded overflow-hidden"
           >
-            <img src={src} alt={`new-${i}`} className="w-full h-full object-cover" />
+            <Image src={src} alt={`new-${i}`} fill unoptimized className="object-cover" />
             <button
               type="button"
               onClick={() => handleRemoveFile(i)}
